@@ -2,7 +2,6 @@ package com.reactnativenavigation.react;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.view.View;
 
 import com.facebook.react.ReactInstanceManager;
 import com.facebook.react.bridge.ReactContext;
@@ -32,8 +31,4 @@ public interface ReactGateway {
     void onActivityResult(int requestCode, int resultCode, Intent data);
 
     boolean hasStartedCreatingContext();
-
-    void onNewIntent(Intent intent);
-
-    boolean onKeyUp(View currentFocus, int keyCode);
 }

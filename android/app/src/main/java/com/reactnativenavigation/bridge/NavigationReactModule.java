@@ -1,7 +1,8 @@
 package com.reactnativenavigation.bridge;
 
+import android.os.Bundle;
+
 import com.facebook.react.bridge.Callback;
-import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
@@ -10,19 +11,14 @@ import com.facebook.react.bridge.ReadableMap;
 import com.reactnativenavigation.controllers.NavigationCommandsHandler;
 import com.reactnativenavigation.params.ContextualMenuParams;
 import com.reactnativenavigation.params.FabParams;
-import com.reactnativenavigation.params.LightBoxParams;
-import com.reactnativenavigation.params.SlidingOverlayParams;
 import com.reactnativenavigation.params.SnackbarParams;
 import com.reactnativenavigation.params.TitleBarButtonParams;
 import com.reactnativenavigation.params.TitleBarLeftButtonParams;
 import com.reactnativenavigation.params.parsers.ContextualMenuParamsParser;
 import com.reactnativenavigation.params.parsers.FabParamsParser;
-import com.reactnativenavigation.params.parsers.LightBoxParamsParser;
-import com.reactnativenavigation.params.parsers.SlidingOverlayParamsParser;
 import com.reactnativenavigation.params.parsers.SnackbarParamsParser;
 import com.reactnativenavigation.params.parsers.TitleBarButtonParamsParser;
 import com.reactnativenavigation.params.parsers.TitleBarLeftButtonParamsParser;
-import com.reactnativenavigation.views.SideMenu.Side;
 
 import java.util.List;
 
@@ -50,10 +46,6 @@ public class NavigationReactModule extends ReactContextBaseJavaModule {
         return NAME;
     }
 
-    @ReactMethod
-    public void startApp(final ReadableMap params) {
-        NavigationCommandsHandler.startApp(BundleConverter.toBundle(params));
-    }
 
     @ReactMethod
     public void setScreenTitleBarTitle(String screenInstanceId, String title) {
@@ -96,65 +88,6 @@ public class NavigationReactModule extends ReactContextBaseJavaModule {
         NavigationCommandsHandler.setScreenFab(screenInstanceId, navigatorEventId, fabParams);
     }
 
-    @ReactMethod
-    public void setScreenStyle(String screenInstanceId, ReadableMap style) {
-        NavigationCommandsHandler.setScreenStyle(screenInstanceId, BundleConverter.toBundle(style));
-    }
-
-    @ReactMethod
-    public void setBottomTabBadgeByIndex(Integer index, String badge) {
-        NavigationCommandsHandler.setBottomTabBadgeByIndex(index, badge);
-    }
-
-    @ReactMethod
-    public void setBottomTabBadgeByNavigatorId(String navigatorId, String badge) {
-        NavigationCommandsHandler.setBottomTabBadgeByNavigatorId(navigatorId, badge);
-    }
-
-    @ReactMethod
-    public void setBottomTabButtonByIndex(Integer index, final ReadableMap params) {
-        NavigationCommandsHandler.setBottomTabButtonByIndex(index, BundleConverter.toBundle(params));
-    }
-
-    @ReactMethod
-    public void setBottomTabButtonByNavigatorId(String navigatorId, final ReadableMap params) {
-        NavigationCommandsHandler.setBottomTabButtonByNavigatorId(navigatorId, BundleConverter.toBundle(params));
-    }
-
-    @ReactMethod
-    public void selectBottomTabByTabIndex(Integer index) {
-        NavigationCommandsHandler.selectBottomTabByTabIndex(index);
-    }
-
-    @ReactMethod
-    public void selectBottomTabByNavigatorId(String navigatorId) {
-        NavigationCommandsHandler.selectBottomTabByNavigatorId(navigatorId);
-    }
-
-    @ReactMethod
-    public void selectTopTabByTabIndex(String screenInstanceId, int index) {
-        NavigationCommandsHandler.selectTopTabByTabIndex(screenInstanceId, index);
-    }
-
-    @ReactMethod
-    public void selectTopTabByScreen(String screenInstanceId) {
-        NavigationCommandsHandler.selectTopTabByScreen(screenInstanceId);
-    }
-
-    @ReactMethod
-    public void toggleSideMenuVisible(boolean animated, String side) {
-        NavigationCommandsHandler.toggleSideMenuVisible(animated, Side.fromString(side));
-    }
-
-    @ReactMethod
-    public void setSideMenuVisible(boolean animated, boolean visible, String side) {
-        NavigationCommandsHandler.setSideMenuVisible(animated, visible, Side.fromString(side));
-    }
-
-    @ReactMethod
-    public void setSideMenuEnabled(boolean enabled, String side) {
-        NavigationCommandsHandler.setSideMenuEnabled(enabled, Side.fromString(side));
-    }
 
     @ReactMethod
     public void toggleTopBarVisible(final ReadableMap params) {
@@ -165,18 +98,41 @@ public class NavigationReactModule extends ReactContextBaseJavaModule {
         NavigationCommandsHandler.setTopBarVisible(screenInstanceId, hidden, animated);
     }
 
-    @ReactMethod
-    public void toggleBottomTabsVisible(final ReadableMap params) {
-    }
+
 
     @ReactMethod
-    public void setBottomTabsVisible(boolean hidden, boolean animated) {
-        NavigationCommandsHandler.setBottomTabsVisible(hidden, animated);
+    public void pushScreen(final ReadableMap params) {
+        NavigationCommandsHandler.pushScreen(BundleConverter.toBundle(params));
     }
+
 
     @ReactMethod
     public void push(final ReadableMap params) {
-        NavigationCommandsHandler.push(BundleConverter.toBundle(params));
+        boolean portraitOnlyMode = false;
+        boolean landscapeOnlyMode = false;
+        String navigatorID = "";
+        String screen = "";
+        if (params.hasKey("portraitOnlyMode")) {
+            portraitOnlyMode = params.getBoolean("portraitOnlyMode");
+        }
+
+        if (params.hasKey(("landscapeOnlyMode"))) {
+            landscapeOnlyMode = params.getBoolean("landscapeOnlyMode");
+        }
+
+        if (params.hasKey("navigatorID")) {
+            navigatorID = params.getString("navigatorID");
+        }
+        if (params.hasKey("screen")) {
+            screen = params.getString("screen");
+        }
+        Bundle bundle = BundleConverter.toBundle(params);
+        if (params.hasKey("passProps")) {
+            ReadableMap passProps = params.getMap("passProps");
+            Bundle props = BundleConverter.passPropsToBundle(passProps);
+            bundle.putBundle("passProps", props);
+        }
+        NavigationCommandsHandler.push(bundle, portraitOnlyMode, landscapeOnlyMode, navigatorID, screen);
     }
 
     @ReactMethod
@@ -190,29 +146,27 @@ public class NavigationReactModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void newStack(final ReadableMap params) {
-        NavigationCommandsHandler.newStack(BundleConverter.toBundle(params));
-    }
-
-    @ReactMethod
     public void showModal(final ReadableMap params) {
-        NavigationCommandsHandler.showModal(BundleConverter.toBundle(params));
-    }
+        boolean portraitOnlyMode = false;
+        boolean landscapeOnlyMode = false;
+        String screen = "";
+        if (params.hasKey("portraitOnlyMode")) {
+            portraitOnlyMode = params.getBoolean("portraitOnlyMode");
+        }
 
-    @ReactMethod
-    public void showLightBox(final ReadableMap params) {
-        LightBoxParams lbp = new LightBoxParamsParser(BundleConverter.toBundle(params)).parse();
-        NavigationCommandsHandler.showLightBox(lbp);
-    }
-
-    @ReactMethod
-    public void dismissLightBox() {
-        NavigationCommandsHandler.dismissLightBox();
-    }
-
-    @ReactMethod
-    public void dismissAllModals() {
-        NavigationCommandsHandler.dismissAllModals();
+        if (params.hasKey(("landscapeOnlyMode"))) {
+            landscapeOnlyMode = params.getBoolean("landscapeOnlyMode");
+        }
+        if (params.hasKey("screen")) {
+            screen = params.getString("screen");
+        }
+        Bundle bundle = BundleConverter.toBundle(params);
+        if (params.hasKey("passProps")) {
+            ReadableMap passProps = params.getMap("passProps");
+            Bundle props = BundleConverter.passPropsToBundle(passProps);
+            bundle.putBundle("passProps", props);
+        }
+        NavigationCommandsHandler.showModal(bundle, portraitOnlyMode, landscapeOnlyMode, screen);
     }
 
     @ReactMethod
@@ -220,26 +174,11 @@ public class NavigationReactModule extends ReactContextBaseJavaModule {
         NavigationCommandsHandler.dismissTopModal();
     }
 
-    @ReactMethod
-    public void showSlidingOverlay(final ReadableMap params) {
-        SlidingOverlayParams slidingOverlayParams = new SlidingOverlayParamsParser().parse(BundleConverter.toBundle(params));
-        NavigationCommandsHandler.showSlidingOverlay(slidingOverlayParams);
-    }
-
-    @ReactMethod
-    public void hideSlidingOverlay(final ReadableMap params) {
-        NavigationCommandsHandler.hideSlidingOverlay();
-    }
 
     @ReactMethod
     public void showSnackbar(final ReadableMap params) {
         SnackbarParams snackbarParams = new SnackbarParamsParser().parse(BundleConverter.toBundle(params));
         NavigationCommandsHandler.showSnackbar(snackbarParams);
-    }
-
-    @ReactMethod
-    public void dismissSnackbar() {
-        NavigationCommandsHandler.dismissSnackbar();
     }
 
     @ReactMethod
@@ -252,25 +191,5 @@ public class NavigationReactModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void dismissContextualMenu(String screenInstanceId) {
         NavigationCommandsHandler.dismissContextualMenu(screenInstanceId);
-    }
-
-    @ReactMethod
-    public void getOrientation(Promise promise) {
-        NavigationCommandsHandler.getOrientation(promise);
-    }
-
-    @ReactMethod
-    public void isAppLaunched(Promise promise) {
-        NavigationCommandsHandler.isAppLaunched(promise);
-    }
-
-    @ReactMethod
-    public void isRootLaunched(Promise promise) {
-        NavigationCommandsHandler.isRootLaunched(promise);
-    }
-
-    @ReactMethod
-    public void getCurrentlyVisibleScreenId(Promise promise) {
-        NavigationCommandsHandler.getCurrentlyVisibleScreenId(promise);
     }
 }

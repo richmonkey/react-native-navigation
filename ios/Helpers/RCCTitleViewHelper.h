@@ -9,22 +9,13 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
-@interface RCCTitleView : UIView
-
-@property (nonatomic, strong) UILabel *titleLabel;
-
-@property (nonatomic, strong) UILabel *subtitleLabel;
-
-@end
-
 @interface RCCTitleViewHelper : NSObject
 
 
 - (instancetype)init:(UIViewController*)viewController
 navigationController:(UINavigationController*)navigationController
                title:(NSString*)title subtitle:(NSString*)subtitle
-      titleImageData:(id)titleImageData
-       isSetSubtitle:(BOOL)isSetSubtitle;
+      titleImageData:(id)titleImageData;
 
 -(void)setup:(NSDictionary*)style;
 

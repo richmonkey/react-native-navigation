@@ -6,33 +6,42 @@ import com.reactnativenavigation.utils.ViewUtils;
 import com.reactnativenavigation.views.utils.ViewMeasurer;
 
 public class CollapsingViewMeasurer extends ViewMeasurer {
+
+    int collapsedTopBarHeight;
+    private float finalCollapseValue;
     int screenHeight;
     int bottomTabsHeight = 0;
-    CollapsingTopBar topBar;
-    protected StyleParams styleParams;
+    boolean bottomTabsHidden;
 
-    public CollapsingViewMeasurer(final CollapsingTopBar topBar, final Screen collapsingSingleScreen, StyleParams styleParams) {
-        this.topBar = topBar;
-        this.styleParams = styleParams;
+    public CollapsingViewMeasurer(CollapsingTopBar topBar, Screen screen, StyleParams styleParams) {
+        this(topBar, screen);
+        bottomTabsHidden = styleParams.bottomTabsHidden;
         bottomTabsHeight = (int) ViewUtils.convertDpToPixel(56);
+    }
+
+    public CollapsingViewMeasurer(final CollapsingTopBar topBar, final Screen collapsingSingleScreen) {
+        ViewUtils.runOnPreDraw(topBar, new Runnable() {
+            @Override
+            public void run() {
+                collapsedTopBarHeight = topBar.getCollapsedHeight();
+                finalCollapseValue = topBar.getFinalCollapseValue();
+            }
+        });
+
         ViewUtils.runOnPreDraw(collapsingSingleScreen, new Runnable() {
             @Override
             public void run() {
-                screenHeight = collapsingSingleScreen.getHeight();
+                screenHeight = collapsingSingleScreen.getMeasuredHeight();
             }
         });
     }
 
     public float getFinalCollapseValue() {
-        return topBar.getFinalCollapseValue();
+        return finalCollapseValue;
     }
 
     @Override
     public int getMeasuredHeight(int heightMeasureSpec) {
-        int height = screenHeight - topBar.getCollapsedHeight();
-        if (styleParams.bottomTabsHidden) {
-            height += bottomTabsHeight;
-        }
-        return height;
+        return screenHeight - collapsedTopBarHeight + (bottomTabsHidden ? bottomTabsHeight : 0);
     }
 }

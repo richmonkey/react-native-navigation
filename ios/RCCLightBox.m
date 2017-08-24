@@ -3,13 +3,12 @@
 #import <React/RCTRootView.h>
 #import <React/RCTRootViewDelegate.h>
 #import <React/RCTConvert.h>
-#import <React/RCTUtils.h>
 #import "RCTHelpers.h"
 #import <objc/runtime.h>
 
 const NSInteger kLightBoxTag = 0x101010;
 
-@interface RCCLightBoxView : UIView<UIGestureRecognizerDelegate>
+@interface RCCLightBoxView : UIView
 @property (nonatomic, strong) RCTRootView *reactView;
 @property (nonatomic, strong) UIVisualEffectView *visualEffectView;
 @property (nonatomic, strong) UIView *overlayColorView;
@@ -42,7 +41,7 @@ const NSInteger kLightBoxTag = 0x101010;
                 self.visualEffectView.frame = CGRectMake(0, 0, frame.size.width, frame.size.height);
                 [self addSubview:self.visualEffectView];
             }
-
+            
             if (style[@"backgroundColor"] != nil)
             {
                 UIColor *backgroundColor = [RCTConvert UIColor:style[@"backgroundColor"]];
@@ -53,13 +52,6 @@ const NSInteger kLightBoxTag = 0x101010;
                     self.overlayColorView.alpha = 0;
                     [self addSubview:self.overlayColorView];
                 }
-            }
-
-            if (style[@"tapBackgroundToDismiss"] != nil && [RCTConvert BOOL:style[@"tapBackgroundToDismiss"]])
-            {
-                UITapGestureRecognizer *singleTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(dismissAnimated)];
-                singleTap.delegate = self;
-                [self addGestureRecognizer:singleTap];
             }
         }
         
@@ -72,16 +64,8 @@ const NSInteger kLightBoxTag = 0x101010;
         
         [self.reactView.contentView.layer addObserver:self forKeyPath:@"frame" options:0 context:nil];
         [self.reactView.contentView.layer addObserver:self forKeyPath:@"bounds" options:0 context:NULL];
-        
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onRNReload) name:RCTJavaScriptWillStartLoadingNotification object:nil];
     }
     return self;
-}
-
-
--(BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch
-{
-    return ![touch.view isDescendantOfView:self.reactView];
 }
 
 -(void)layoutSubviews
@@ -96,7 +80,6 @@ const NSInteger kLightBoxTag = 0x101010;
 
 -(void)removeAllObservers
 {
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
     [self.reactView.contentView.layer removeObserver:self forKeyPath:@"frame" context:nil];
     [self.reactView.contentView.layer removeObserver:self forKeyPath:@"bounds" context:NULL];
 }
@@ -106,12 +89,6 @@ const NSInteger kLightBoxTag = 0x101010;
     [self removeAllObservers];
 }
 
--(void)onRNReload
-{
-    [self removeAllObservers];
-    [self removeFromSuperview];
-    self.reactView = nil;
-}
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
 {
@@ -215,24 +192,31 @@ const NSInteger kLightBoxTag = 0x101010;
 
 @implementation RCCLightBox
 
++(UIWindow*)getWindow
+{
+    UIApplication *app = [UIApplication sharedApplication];
+    UIWindow *window = (app.keyWindow != nil) ? app.keyWindow : app.windows[0];
+    return window;
+}
+
 +(void)showWithParams:(NSDictionary*)params
 {
-    UIViewController *viewController = RCTPresentedViewController();
-    if ([viewController.view viewWithTag:kLightBoxTag] != nil)
+    UIWindow *window = [RCCLightBox getWindow];
+    if ([window viewWithTag:kLightBoxTag] != nil)
     {
         return;
     }
-
+    
     RCCLightBoxView *lightBox = [[RCCLightBoxView alloc] initWithFrame:CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height) params:params];
     lightBox.tag = kLightBoxTag;
-    [viewController.view addSubview:lightBox];
+    [window addSubview:lightBox];
     [lightBox showAnimated];
 }
 
 +(void)dismiss
 {
-    UIViewController *viewController = RCTPresentedViewController();
-    RCCLightBoxView *lightBox = [viewController.view viewWithTag:kLightBoxTag];
+    UIWindow *window = [RCCLightBox getWindow];
+    RCCLightBoxView *lightBox = [window viewWithTag:kLightBoxTag];
     if (lightBox != nil)
     {
         [lightBox dismissAnimated];

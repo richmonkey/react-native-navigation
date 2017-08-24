@@ -1,6 +1,7 @@
 package com.reactnativenavigation.views.collapsingToolbar;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
@@ -16,6 +17,7 @@ public class CollapsingTopBarBackground extends FrameLayout {
     private final CollapsingTopBarParams params;
     private SimpleDraweeView backdrop;
     private Scrim scrim;
+    private int topBarHeight = -1;
 
     public CollapsingTopBarBackground(Context context, CollapsingTopBarParams params) {
         super(context);
@@ -43,6 +45,20 @@ public class CollapsingTopBarBackground extends FrameLayout {
     private void createScrim() {
         scrim = new Scrim(getContext(), params.scrimColor, MAX_HEIGHT / 2);
         addView(scrim);
+    }
+
+    public int getCollapsedTopBarHeight() {
+        if (topBarHeight > -1) {
+            return topBarHeight;
+        }
+        calculateTopBarHeight();
+        return topBarHeight;
+    }
+    private void calculateTopBarHeight() {
+        int[] attrs = new int[] {android.R.attr.actionBarSize};
+        TypedArray ta = getContext().obtainStyledAttributes(attrs);
+        topBarHeight = ta.getDimensionPixelSize(0, -1);
+        ta.recycle();
     }
 
     public void collapse(float collapse) {

@@ -1,1 +1,6 @@
-module.exports = require('./deprecated/indexDeprecated');
+import Navigation from './Navigation';
+module.exports = {
+    Navigation
+};
+
+

@@ -8,7 +8,6 @@ import com.balysv.materialmenu.MaterialMenuDrawable;
 import com.reactnativenavigation.NavigationApplication;
 import com.reactnativenavigation.params.TitleBarButtonParams;
 import com.reactnativenavigation.params.TitleBarLeftButtonParams;
-import com.reactnativenavigation.utils.ViewUtils;
 
 class LeftButton extends MaterialMenuDrawable implements View.OnClickListener {
 
@@ -20,7 +19,7 @@ class LeftButton extends MaterialMenuDrawable implements View.OnClickListener {
 
     private TitleBarLeftButtonParams params;
     private final LeftButtonOnClickListener onClickListener;
-    private String navigatorEventId;
+    private final String navigatorEventId;
     private final boolean overrideBackPressInJs;
 
     LeftButton(Context context,
@@ -34,26 +33,20 @@ class LeftButton extends MaterialMenuDrawable implements View.OnClickListener {
         this.navigatorEventId = navigatorEventId;
         this.overrideBackPressInJs = overrideBackPressInJs;
         setInitialState();
-        setColor();
     }
 
     void setIconState(TitleBarLeftButtonParams params) {
         this.params = params;
-        setColor();
+        if (params.color.hasColor()) {
+            setColor(params.color.getColor());
+        }
         animateIconState(params.iconState);
-    }
-
-    void setCustomIcon(TitleBarLeftButtonParams params) {
-        this.params = params;
-        setColor();
     }
 
     @Override
     public void onClick(View v) {
         if (isBackButton()) {
             handleBackButtonClick();
-        } else if (isSideMenuButton()) {
-            onClickListener.onSideMenuButtonClick();
         } else {
             sendClickEvent();
         }
@@ -69,47 +62,18 @@ class LeftButton extends MaterialMenuDrawable implements View.OnClickListener {
 
     private void setInitialState() {
         if (params != null) {
-            if (params.iconState != null) {
-                setIconState(params.iconState);
-            }
+            setIconState(params.iconState);
         } else {
             setVisible(false);
         }
     }
 
-    private void setColor() {
-        if (!params.color.hasColor()) {
-            return;
-        }
-        if (params.hasDefaultIcon()) {
-            setColor(params.color.getColor());
-        } else if (params.hasCustomIcon()) {
-            ViewUtils.tintDrawable(params.icon, params.color.getColor(), true);
-        }
-    }
-
-    @Override
-    public void setColor(int color) {
-        if (params.hasDefaultIcon()) {
-            super.setColor(color);
-        } else {
-            ViewUtils.tintDrawable(params.icon, color, true );
-        }
-    }
-
     private boolean isBackButton() {
-        return params.hasDefaultIcon() && getIconState() == IconState.ARROW;
+        return getIconState() == IconState.ARROW;
     }
 
-    private boolean isSideMenuButton() {
-        return params.hasDefaultIcon() && getIconState() == IconState.BURGER;
-    }
 
     private void sendClickEvent() {
         NavigationApplication.instance.getEventEmitter().sendNavigatorEvent(params.eventId, navigatorEventId);
-    }
-
-    void updateNavigatorEventId(String navigatorEventId) {
-        this.navigatorEventId = navigatorEventId;
     }
 }

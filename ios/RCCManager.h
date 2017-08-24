@@ -15,8 +15,10 @@
 -(void)registerController:(UIViewController*)controller componentId:(NSString*)componentId componentType:(NSString*)componentType;
 -(id)getControllerWithId:(NSString*)componentId componentType:(NSString*)componentType;
 -(void)unregisterController:(UIViewController*)vc;
--(NSString*) getIdForController:(UIViewController*)vc;
 
 -(void)clearModuleRegistry;
 
+
+-(void)registerComponent:(NSString*)component class:(Class)cls;
+-(Class)getComponent:(NSString*)component;
 @end

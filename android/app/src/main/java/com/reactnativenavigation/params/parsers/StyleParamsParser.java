@@ -4,10 +4,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 
 import com.reactnativenavigation.params.AppStyle;
-import com.reactnativenavigation.params.Orientation;
-import com.reactnativenavigation.params.StatusBarTextColorScheme;
 import com.reactnativenavigation.params.StyleParams;
-import com.reactnativenavigation.utils.ViewUtils;
 
 public class StyleParamsParser {
     private Bundle params;
@@ -16,31 +13,20 @@ public class StyleParamsParser {
         this.params = params;
     }
 
-    public StyleParamsParser merge(Bundle b) {
-        params.putAll(b);
-        return this;
-    }
-
     public StyleParams parse() {
         if (params == null) {
             return createDefaultStyleParams();
         }
 
-        StyleParams result = new StyleParams(params);
-        result.orientation = Orientation.fromString(params.getString("orientation", getDefaultOrientation()));
+        StyleParams result = new StyleParams();
         result.statusBarColor = getColor("statusBarColor", getDefaultStatusBarColor());
-        result.statusBarTextColorScheme = StatusBarTextColorScheme.fromString(params.getString("statusBarTextColorScheme"));
         result.contextualMenuStatusBarColor = getColor("contextualMenuStatusBarColor", getDefaultContextualMenuStatusBarColor());
         result.contextualMenuButtonsColor = getColor("contextualMenuButtonsColor", getDefaultContextualMenuButtonsColor());
         result.contextualMenuBackgroundColor = getColor("contextualMenuBackgroundColor", getDefaultContextualMenuBackgroundColor());
 
         result.topBarColor = getColor("topBarColor", getDefaultTopBarColor());
-        result.topBarReactView = params.getString("topBarReactView");
-        result.topBarReactViewAlignment = params.getString("topBarReactViewAlignment");
-        result.topBarReactViewInitialProps = getBundle("topBarReactViewInitialProps");
         result.titleBarHideOnScroll = getBoolean("titleBarHideOnScroll", getDefaultTitleBarHideOnScroll());
         result.topBarTransparent = getBoolean("topBarTransparent", getDefaultTopBarHidden());
-        result.topBarCollapseOnScroll = getBoolean("topBarCollapseOnScroll", false);
         result.drawScreenBelowTopBar = params.getBoolean("drawBelowTopBar", getDefaultScreenBelowTopBar());
         if (result.topBarTransparent) {
             result.drawScreenBelowTopBar = false;
@@ -50,32 +36,20 @@ public class StyleParamsParser {
         result.topBarElevationShadowEnabled = getBoolean("topBarElevationShadowEnabled", getDefaultTopBarElevationShadowEnabled());
         result.titleBarTitleColor = getColor("titleBarTitleColor", getDefaultTitleBarColor());
         result.topBarTranslucent = getBoolean("topBarTranslucent", getDefaultTopBarTranslucent());
-        result.topBarBorderColor = getColor("topBarBorderColor", getDefaultTopBarBorderColor());
-        result.topBarBorderWidth = Float.parseFloat(params.getString("topBarBorderWidth", getDefaultTopBarBorderWidth()));
 
         result.titleBarSubtitleColor = getColor("titleBarSubtitleColor", getDefaultSubtitleBarColor());
         result.titleBarButtonColor = getColor("titleBarButtonColor", getTitleBarButtonColor());
         result.titleBarDisabledButtonColor = getColor("titleBarDisabledButtonColor", getTitleBarDisabledButtonColor());
-        result.titleBarTitleFont = getFont("titleBarTitleFontFamily", getDefaultTitleTextFontFamily());
-        result.titleBarTitleFontSize = getInt("titleBarTitleFontSize", getDefaultTitleTextFontSize());
-        result.titleBarTitleFontBold = getBoolean("titleBarTitleFontBold", getDefaultTitleTextFontBold());
-        result.titleBarTitleTextCentered = getBoolean("titleBarTitleTextCentered", getDefaultTitleBarTextCentered());
-        result.titleBarHeight = getInt("titleBarHeight", getDefaultTitleBarHeight());
         result.backButtonHidden = getBoolean("backButtonHidden", getDefaultBackButtonHidden());
         result.topTabsHidden = getBoolean("topTabsHidden", getDefaultTopTabsHidden());
 
         result.topTabTextColor = getColor("topTabTextColor", getDefaultTopTabTextColor());
-        result.topTabIconColor = getColor("topTabIconColor", getDefaultTopTabIconColor());
-        result.selectedTopTabIconColor = getColor("selectedTopTabIconColor", getDefaultSelectedTopTabIconColor());
         result.selectedTopTabTextColor = getColor("selectedTopTabTextColor", getDefaultSelectedTopTabTextColor());
         result.selectedTopTabIndicatorHeight = getInt("selectedTopTabIndicatorHeight", getDefaultSelectedTopTabIndicatorHeight());
         result.selectedTopTabIndicatorColor = getColor("selectedTopTabIndicatorColor", getDefaultSelectedTopTabIndicatorColor());
-        result.topTabsScrollable = getBoolean("topTabsScrollable", getDefaultTopTabsScrollable());
-        result.topTabsHeight = getInt("topTabsHeight", getDefaultTopTabsHeight());
 
         result.screenBackgroundColor = getColor("screenBackgroundColor", getDefaultScreenBackgroundColor());
 
-        result.bottomTabsInitialIndex = getInt("initialTabIndex", 0);
         result.bottomTabsHidden = getBoolean("bottomTabsHidden", getDefaultBottomTabsHidden());
         result.drawScreenAboveBottomTabs = !result.bottomTabsHidden &&
                                            params.getBoolean("drawScreenAboveBottomTabs", getDefaultDrawScreenAboveBottomTabs());
@@ -93,22 +67,14 @@ public class StyleParamsParser {
         result.navigationBarColor = getColor("navigationBarColor", getDefaultNavigationColor());
         result.forceTitlesDisplay = getBoolean("forceTitlesDisplay", getDefaultForceTitlesDisplay());
 
-        result.bottomTabFontFamily = getFont("bottomTabFontFamily", getDefaultBottomTabsFontFamily());
-
         return result;
     }
 
-    private String getDefaultOrientation() {
-        return AppStyle.appStyle == null ? null : AppStyle.appStyle.orientation.name;
-    }
-
     private StyleParams createDefaultStyleParams() {
-        StyleParams result = new StyleParams(Bundle.EMPTY);
+        StyleParams result = new StyleParams();
         result.titleBarDisabledButtonColor = getTitleBarDisabledButtonColor();
         result.topBarElevationShadowEnabled = true;
         result.titleBarHideOnScroll = false;
-        result.orientation = Orientation.auto;
-        result.bottomTabFontFamily = new StyleParams.Font();
         return result;
     }
 
@@ -138,10 +104,6 @@ public class StyleParamsParser {
 
     private StyleParams.Color getDefaultSelectedTopTabTextColor() {
         return AppStyle.appStyle == null ? new StyleParams.Color() : AppStyle.appStyle.selectedTopTabTextColor;
-    }
-
-    private StyleParams.Color getDefaultSelectedTopTabIconColor() {
-        return AppStyle.appStyle == null ? new StyleParams.Color() : AppStyle.appStyle.selectedTopTabIconColor;
     }
 
     private StyleParams.Color getDefaultNavigationColor() {
@@ -196,18 +158,6 @@ public class StyleParamsParser {
         return AppStyle.appStyle == null ? new StyleParams.Color() : AppStyle.appStyle.topTabTextColor;
     }
 
-    private boolean getDefaultTopTabsScrollable() {
-        return AppStyle.appStyle != null && AppStyle.appStyle.topTabsScrollable;
-    }
-
-    private int getDefaultTopTabsHeight() {
-        return AppStyle.appStyle == null ? -1 : AppStyle.appStyle.topTabsHeight;
-    }
-
-    private StyleParams.Color getDefaultTopTabIconColor() {
-        return AppStyle.appStyle == null ? new StyleParams.Color() : AppStyle.appStyle.topTabIconColor;
-    }
-
     private boolean getDefaultBackButtonHidden() {
         return AppStyle.appStyle != null && AppStyle.appStyle.backButtonHidden;
     }
@@ -240,14 +190,6 @@ public class StyleParamsParser {
         return AppStyle.appStyle != null && AppStyle.appStyle.topBarTranslucent;
     }
 
-    private StyleParams.Color getDefaultTopBarBorderColor() {
-        return AppStyle.appStyle == null ? new StyleParams.Color() : AppStyle.appStyle.topBarBorderColor;
-    }
-
-    private String getDefaultTopBarBorderWidth() {
-        return String.valueOf(AppStyle.appStyle == null ? ViewUtils.convertDpToPixel(1) : AppStyle.appStyle.topBarBorderWidth);
-    }
-
     private boolean getDefaultTitleBarHideOnScroll() {
         return AppStyle.appStyle != null && AppStyle.appStyle.titleBarHideOnScroll;
     }
@@ -258,30 +200,6 @@ public class StyleParamsParser {
 
     private StyleParams.Color getDefaultStatusBarColor() {
         return AppStyle.appStyle == null ? new StyleParams.Color() : AppStyle.appStyle.statusBarColor;
-    }
-
-    private StyleParams.Font getDefaultBottomTabsFontFamily() {
-        return AppStyle.appStyle == null ? new StyleParams.Font() : AppStyle.appStyle.bottomTabFontFamily;
-    }
-
-    private StyleParams.Font getDefaultTitleTextFontFamily() {
-        return AppStyle.appStyle == null ? new StyleParams.Font() : AppStyle.appStyle.titleBarTitleFont;
-    }
-
-    private int getDefaultTitleTextFontSize() {
-        return AppStyle.appStyle == null ? -1 : AppStyle.appStyle.titleBarTitleFontSize;
-    }
-
-    private boolean getDefaultTitleTextFontBold() {
-        return AppStyle.appStyle != null && AppStyle.appStyle.titleBarTitleFontBold;
-    }
-
-    private boolean getDefaultTitleBarTextCentered() {
-        return AppStyle.appStyle != null && AppStyle.appStyle.titleBarTitleTextCentered;
-    }
-
-    private int getDefaultTitleBarHeight() {
-        return AppStyle.appStyle == null ? -1 : AppStyle.appStyle.titleBarHeight;
     }
 
     private boolean getBoolean(String key, boolean defaultValue) {
@@ -297,16 +215,7 @@ public class StyleParamsParser {
         }
     }
 
-    private StyleParams.Font getFont(String titleBarTitleFontFamily, StyleParams.Font defaultFont) {
-        StyleParams.Font font = new StyleParams.Font(params.getString(titleBarTitleFontFamily));
-        return font.hasFont() ? font : defaultFont;
-    }
-
     private int getInt(String key, int defaultValue) {
         return params.containsKey(key) ? params.getInt(key) : defaultValue;
-    }
-
-    private Bundle getBundle(String key) {
-        return params.containsKey(key) ? params.getBundle(key) : Bundle.EMPTY;
     }
 }

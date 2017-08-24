@@ -2,33 +2,30 @@ package com.reactnativenavigation.params.parsers;
 
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.Parcelable;
 
 import com.reactnativenavigation.params.NavigationParams;
-import com.reactnativenavigation.params.PageParams;
 import com.reactnativenavigation.params.ScreenParams;
+import com.reactnativenavigation.params.PageParams;
 import com.reactnativenavigation.react.ImageLoader;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public class ScreenParamsParser extends Parser {
     private static final String KEY_TITLE = "title";
     private static final String KEY_SUBTITLE = "subtitle";
     private static final String KEY_SCREEN_ID = "screenId";
-    private static final String KEY_TIMESTAMP = "timestamp";
     private static final String KEY_NAVIGATION_PARAMS = "navigationParams";
     private static final String STYLE_PARAMS = "styleParams";
     private static final String TOP_TABS = "topTabs";
-    private static final String FRAGMENT_CREATOR_CLASS_NAME = "fragmentCreatorClassName";
-    private static final String FRAGMENT_CREATOR_PASS_PROPS = "fragmentCreatorPassProps";
     private static final String OVERRIDE_BACK_PRESS = "overrideBackPress";
-    private static final String ANIMATION_TYPE = "animationType";
+    private static final String PASS_PROPS = "passProps";
 
     @SuppressWarnings("ConstantConditions")
     public static ScreenParams parse(Bundle params) {
         ScreenParams result = new ScreenParams();
         result.screenId = params.getString(KEY_SCREEN_ID);
-        result.timestamp = params.getDouble(KEY_TIMESTAMP);
         assertKeyExists(params, KEY_NAVIGATION_PARAMS);
         result.navigationParams = new NavigationParams(params.getBundle(KEY_NAVIGATION_PARAMS));
 
@@ -42,34 +39,43 @@ public class ScreenParamsParser extends Parser {
 
         result.topTabParams = parseTopTabs(params);
 
-        if (hasKey(params, FRAGMENT_CREATOR_CLASS_NAME)) {
-            result.fragmentCreatorClassName = params.getString(FRAGMENT_CREATOR_CLASS_NAME);
-            result.fragmentCreatorPassProps = params.getBundle(FRAGMENT_CREATOR_PASS_PROPS);
-        }
-
         result.fabParams = ButtonParser.parseFab(params, result.navigationParams.navigatorEventId, result.navigationParams.screenInstanceId);
 
         result.tabLabel = getTabLabel(params);
-        result.tabIcon = new TabIconParser(params).parse();
+        result.tabIcon = getTabIcon(params);
 
-        result.animateScreenTransitions = new AnimationParser(params).parse();
-        result.sharedElementsTransitions = getSharedElementsTransitions(params);
+        result.animateScreenTransitions = params.getBoolean("animated", true);
 
-        result.animationType = params.getString(ANIMATION_TYPE);
+        result.passProps = params.getBundle(PASS_PROPS);
+        covnertPassProps(result.passProps);
 
         return result;
     }
 
-    private static List<String> getSharedElementsTransitions(Bundle params) {
-        Bundle sharedElements = params.getBundle("sharedElements");
-        if (sharedElements == null) {
-            return new ArrayList<>();
+    //Parcelable[] -> Bundle[]
+    private static void covnertPassProps(Bundle passProps) {
+        if (passProps != null) {
+            Set<String> keys = passProps.keySet();
+            for (String k : keys) {
+                Parcelable[] v = passProps.getParcelableArray(k);
+                if (v != null) {
+                    Bundle[] bundles = new Bundle[v.length];
+                    int i;
+                    for (i = 0; i < v.length; i++) {
+                        Parcelable p = v[i];
+                        if (p instanceof Bundle) {
+                            bundles[i] = (Bundle)p;
+                        } else {
+                            break;
+                        }
+                    }
+
+                    if (i == v.length) {
+                        passProps.putParcelableArray(k, bundles);
+                    }
+                }
+            }
         }
-        List<String> result = new ArrayList<>();
-        for (String key : sharedElements.keySet()) {
-            result.add(sharedElements.getString(key));
-        }
-        return result;
     }
 
     private static Drawable getTabIcon(Bundle params) {

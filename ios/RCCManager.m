@@ -1,5 +1,4 @@
 #import "RCCManager.h"
-#import "RCCViewController.h"
 #import <React/RCTBridge.h>
 #import <React/RCTRedBox.h>
 #import <Foundation/Foundation.h>
@@ -8,6 +7,7 @@
 @property (nonatomic, strong) NSMutableDictionary *modulesRegistry;
 @property (nonatomic, strong) RCTBridge *sharedBridge;
 @property (nonatomic, strong) NSURL *bundleURL;
+@property (nonatomic, strong) NSMutableDictionary *components;
 @end
 
 @implementation RCCManager
@@ -38,22 +38,21 @@
   if (self)
   {
     self.modulesRegistry = [@{} mutableCopy];
-    
-//    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onRNReload) name:RCTReloadNotification object:nil];
+    self.components = [NSMutableDictionary dictionary];
   }
   return self;
 }
 
--(void)clearModuleRegistry
-{
-  [self.modulesRegistry removeAllObjects];
+-(void)registerComponent:(NSString*)component class:(Class)cls {
+    [self.components setObject:cls forKey:component];
 }
 
--(void)onRNReload
-{
-  id<UIApplicationDelegate> appDelegate = [UIApplication sharedApplication].delegate;
-  appDelegate.window.rootViewController = nil;
-  [self clearModuleRegistry];
+-(Class)getComponent:(NSString*)component {
+    return [self.components objectForKey:component];
+}
+
+-(void)clearModuleRegistry {
+  [self.modulesRegistry removeAllObjects];
 }
 
 -(void)registerController:(UIViewController*)controller componentId:(NSString*)componentId componentType:(NSString*)componentType
@@ -117,32 +116,6 @@
   return component;
 }
 
--(NSString*) getIdForController:(UIViewController*)vc
-{
-  if([vc isKindOfClass:[RCCViewController class]])
-  {
-    NSString *controllerId = ((RCCViewController*)vc).controllerId;
-    if(controllerId != nil)
-    {
-      return controllerId;
-    }
-  }
-  
-  for (NSString *key in [self.modulesRegistry allKeys])
-  {
-    NSMutableDictionary *componentsDic = self.modulesRegistry[key];
-    for (NSString *componentID in [componentsDic allKeys])
-    {
-      UIViewController *tmpVc = componentsDic[componentID];
-      if (tmpVc == vc)
-      {
-        return componentID;
-      }
-    }
-  }
-  return nil;
-}
-
 -(void)initBridgeWithBundleURL:(NSURL *)bundleURL
 {
   [self initBridgeWithBundleURL :bundleURL launchOptions:nil];
@@ -154,77 +127,8 @@
 
   self.bundleURL = bundleURL;
   self.sharedBridge = [[RCTBridge alloc] initWithDelegate:self launchOptions:launchOptions];
-  
-  [self showSplashScreen];
 }
 
--(void)showSplashScreen
-{
-  CGRect screenBounds = [UIScreen mainScreen].bounds;
-  UIView *splashView = nil;
-  
-  NSString* launchStoryBoard = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UILaunchStoryboardName"];
-  if (launchStoryBoard != nil)
-  {//load the splash from the storyboard that's defined in the info.plist as the LaunchScreen
-    @try
-    {
-      splashView = [[NSBundle mainBundle] loadNibNamed:launchStoryBoard owner:self options:nil][0];
-      if (splashView != nil)
-      {
-        splashView.frame = CGRectMake(0, 0, screenBounds.size.width, screenBounds.size.height);
-      }
-    }
-    @catch(NSException *e)
-    {
-      splashView = nil;
-    }
-  }
-  else
-  {//load the splash from the DEfault image or from LaunchImage in the xcassets
-    CGFloat screenHeight = screenBounds.size.height;
-    
-    NSString* imageName = @"Default";
-    if (screenHeight == 568)
-      imageName = [imageName stringByAppendingString:@"-568h"];
-    else if (screenHeight == 667)
-      imageName = [imageName stringByAppendingString:@"-667h"];
-    else if (screenHeight == 736)
-      imageName = [imageName stringByAppendingString:@"-736h"];
-    
-    //xcassets LaunchImage files
-    UIImage *image = [UIImage imageNamed:imageName];
-    if (image == nil)
-    {
-      imageName = @"LaunchImage";
-      
-      if (screenHeight == 480)
-        imageName = [imageName stringByAppendingString:@"-700"];
-      if (screenHeight == 568)
-        imageName = [imageName stringByAppendingString:@"-700-568h"];
-      else if (screenHeight == 667)
-        imageName = [imageName stringByAppendingString:@"-800-667h"];
-      else if (screenHeight == 736)
-        imageName = [imageName stringByAppendingString:@"-800-Portrait-736h"];
-      
-      image = [UIImage imageNamed:imageName];
-    }
-    
-    if (image != nil)
-    {
-      splashView = [[UIImageView alloc] initWithImage:image];
-    }
-  }
-  
-  if (splashView != nil)
-  {
-    UIViewController *splashVC = [[UIViewController alloc] init];
-    splashVC.view = splashView;
-    
-    id<UIApplicationDelegate> appDelegate = [UIApplication sharedApplication].delegate;
-    appDelegate.window.rootViewController = splashVC;
-    [appDelegate.window makeKeyAndVisible];
-  }
-}
 
 -(RCTBridge*)getBridge
 {

@@ -5,15 +5,10 @@ import {
   DeviceEventEmitter,
   Platform
 } from 'react-native';
-import platformSpecific from './deprecated/platformSpecificDeprecated';
+import platformSpecific from './platformSpecificDeprecated';
 import Navigation from './Navigation';
 
-const NavigationSpecific = {
-  push: platformSpecific.navigatorPush,
-  pop: platformSpecific.navigatorPop,
-  popToRoot: platformSpecific.navigatorPopToRoot,
-  resetTo: platformSpecific.navigatorResetTo
-};
+const _allNavigatorEventHandlers = {};
 
 class Navigator {
   constructor(navigatorID, navigatorEventID, screenInstanceID) {
@@ -25,51 +20,35 @@ class Navigator {
   }
 
   push(params = {}) {
-    return NavigationSpecific.push(this, params);
+      return platformSpecific.navigatorPush(this, params);
   }
 
   pop(params = {}) {
-    return NavigationSpecific.pop(this, params);
+      return platformSpecific.navigatorPop(this, params);
   }
 
   popToRoot(params = {}) {
-    return NavigationSpecific.popToRoot(this, params);
-  }
-
-  resetTo(params = {}) {
-    return NavigationSpecific.resetTo(this, params);
-  }
+      return platformSpecific.navigatorPopToRoot(this, params);
+  }    
 
   showModal(params = {}) {
-    return Navigation.showModal(params);
-  }
-
-  showLightBox(params = {}) {
-    return Navigation.showLightBox(params);
+    return platformSpecific.showModal(params);        
   }
 
   dismissModal(params = {}) {
-    return Navigation.dismissModal(params);
+     return platformSpecific.dismissModal(params);        
   }
 
   dismissAllModals(params = {}) {
-    return Navigation.dismissAllModals(params);
+    return platformSpecific.dismissAllModals(params);      
   }
 
   showLightBox(params = {}) {
-    return Navigation.showLightBox(params);
+    return platformSpecific.showLightBox(params);      
   }
 
   dismissLightBox(params = {}) {
-    return Navigation.dismissLightBox(params);
-  }
-
-  showInAppNotification(params = {}) {
-    return Navigation.showInAppNotification(params);
-  }
-
-  dismissInAppNotification(params = {}) {
-    return Navigation.dismissInAppNotification(params);
+    return platformSpecific.dismissLightBox(params);      
   }
 
   setButtons(params = {}) {
@@ -88,48 +67,8 @@ class Navigator {
     return platformSpecific.navigatorSetTitleImage(this, params);
   }
 
-  setStyle(params = {}) {
-    return platformSpecific.navigatorSetStyle(this, params);
-  }
-
-  toggleDrawer(params = {}) {
-    return platformSpecific.navigatorToggleDrawer(this, params);
-  }
-
-  setDrawerEnabled(params = {}) {
-    return platformSpecific.navigatorSetDrawerEnabled(this, params);
-  }
-
-  toggleTabs(params = {}) {
-    return platformSpecific.navigatorToggleTabs(this, params);
-  }
-
   toggleNavBar(params = {}) {
     return platformSpecific.navigatorToggleNavBar(this, params);
-  }
-
-  setTabBadge(params = {}) {
-    return platformSpecific.navigatorSetTabBadge(this, params);
-  }
-
-  setTabButton(params = {}) {
-    return platformSpecific.navigatorSetTabButton(this, params);
-  }
-
-  switchToTab(params = {}) {
-    return platformSpecific.navigatorSwitchToTab(this, params);
-  }
-
-  switchToTopTab(params = {}) {
-    return platformSpecific.navigatorSwitchToTopTab(this, params);
-  }
-
-  showSnackbar(params = {}) {
-    return platformSpecific.showSnackbar(params);
-  }
-
-  dismissSnackbar() {
-    return platformSpecific.dismissSnackbar();
   }
 
   showContextualMenu(params, onButtonPressed) {
@@ -145,12 +84,19 @@ class Navigator {
     if (!this.navigatorEventSubscription) {
       let Emitter = Platform.OS === 'android' ? DeviceEventEmitter : NativeAppEventEmitter;
       this.navigatorEventSubscription = Emitter.addListener(this.navigatorEventID, (event) => this.onNavigatorEvent(event));
-      Navigation.setEventHandler(this.navigatorEventID, (event) => this.onNavigatorEvent(event));
+      _allNavigatorEventHandlers[this.navigatorEventID] = (event) => this.onNavigatorEvent(event);
     }
   }
 
   handleDeepLink(params = {}) {
-    Navigation.handleDeepLink(params);
+    if (!params.link) return;
+    const event = {
+      type: 'DeepLink',
+      link: params.link
+    };
+    for (let i in _allNavigatorEventHandlers) {
+      _allNavigatorEventHandlers[i](event);
+    }
   }
 
   onNavigatorEvent(event) {
@@ -162,20 +108,12 @@ class Navigator {
   cleanup() {
     if (this.navigatorEventSubscription) {
       this.navigatorEventSubscription.remove();
-      Navigation.clearEventHandler(this.navigatorEventID);
+      delete _allNavigatorEventHandlers[this.navigatorEventID];
     }
-  }
-
-  async screenIsCurrentlyVisible() {
-    const res = await Navigation.getCurrentlyVisibleScreenId();
-    if (!res) {
-      return false;
-    }
-    return res.screenId === this.screenInstanceID;
   }
 }
 
-class Screen extends Component {
+export default class Screen extends Component {
   static navigatorStyle = {};
   static navigatorButtons = {};
 
@@ -193,8 +131,3 @@ class Screen extends Component {
     }
   }
 }
-
-export {
-  Screen,
-  Navigator
-};

@@ -1,14 +1,11 @@
 package com.reactnativenavigation.screens;
 
 import android.support.v7.app.AppCompatActivity;
-import android.view.MotionEvent;
 import android.widget.ScrollView;
 
-import com.facebook.react.uimanager.RootViewUtil;
 import com.reactnativenavigation.params.ScreenParams;
 import com.reactnativenavigation.views.CollapsingContentView;
 import com.reactnativenavigation.views.LeftButtonOnClickListener;
-import com.reactnativenavigation.views.TopBar;
 import com.reactnativenavigation.views.collapsingToolbar.CollapseAmount;
 import com.reactnativenavigation.views.collapsingToolbar.CollapseCalculator;
 import com.reactnativenavigation.views.collapsingToolbar.CollapsingTopBar;
@@ -32,10 +29,10 @@ public class CollapsingSingleScreen extends SingleScreen {
     }
 
     @Override
-    protected TopBar createTopBar() {
-        final CollapsingTopBar topBar = new CollapsingTopBar(getContext(), styleParams);
+    protected void createTopBar() {
+        final CollapsingTopBar topBar = new CollapsingTopBar(getContext(), styleParams.collapsingTopBarParams);
         topBar.setScrollListener(getScrollListener(topBar));
-        return topBar;
+        this.topBar = topBar;
     }
 
     @Override
@@ -43,12 +40,7 @@ public class CollapsingSingleScreen extends SingleScreen {
         contentView = new CollapsingContentView(getContext(), screenParams.screenId, screenParams.navigationParams);
         setViewMeasurer();
         setupCollapseDetection((CollapsingTopBar) topBar);
-        post(new Runnable() {
-            @Override
-            public void run() {
-                addView(contentView, createLayoutParams());
-            }
-        });
+        addView(contentView, createLayoutParams());
     }
 
     private void setViewMeasurer() {
@@ -70,9 +62,8 @@ public class CollapsingSingleScreen extends SingleScreen {
         return new ScrollListener(new CollapseCalculator(topBar, getCollapseBehaviour()),
                 new OnScrollListener() {
                     @Override
-                    public void onScroll(MotionEvent event, CollapseAmount amount) {
+                    public void onScroll(CollapseAmount amount) {
                         if (screenParams.styleParams.drawScreenBelowTopBar) {
-                            RootViewUtil.getRootView(contentView).onChildStartedNativeGesture(event);
                             ((CollapsingView) contentView).collapse(amount);
                         }
                         topBar.collapse(amount);
@@ -81,9 +72,9 @@ public class CollapsingSingleScreen extends SingleScreen {
                     @Override
                     public void onFling(CollapseAmount amount) {
                         if (screenParams.styleParams.drawScreenBelowTopBar) {
-                            ((CollapsingView) contentView).fling(amount);
+                            ((CollapsingView) contentView).collapse(amount);
                         }
-                        topBar.fling(amount);
+                        topBar.collapse(amount);
                     }
                 },
                 getCollapseBehaviour()

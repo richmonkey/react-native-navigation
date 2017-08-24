@@ -2,7 +2,6 @@ package com.reactnativenavigation.views.collapsingToolbar;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ViewConfiguration;
@@ -10,11 +9,10 @@ import android.widget.ScrollView;
 
 import com.reactnativenavigation.NavigationApplication;
 import com.reactnativenavigation.views.collapsingToolbar.behaviours.CollapseBehaviour;
+import com.reactnativenavigation.views.collapsingToolbar.behaviours.CollapseTitleBarBehaviour;
 import com.reactnativenavigation.views.collapsingToolbar.behaviours.TitleBarHideOnScrollBehaviour;
 
 public class CollapseCalculator {
-    private static final int FLING_DISTANCE_PIXELS_THRESHOLD = 200;
-
     public enum Direction {
         Up, Down, None
     }
@@ -33,17 +31,13 @@ public class CollapseCalculator {
     private GestureDetector flingDetector;
     private OnFlingListener flingListener;
     private int scrollY = 0;
-    private float totalCollapse = 0;
-    private float totalCollapseDeltaSinceTouchDown = 0;
+    private int totalCollapse = 0;
     private final int scaledTouchSlop;
-    private final int minimumFlingVelocity;
 
     public CollapseCalculator(final CollapsingView collapsingView, CollapseBehaviour collapseBehaviour) {
         this.view = collapsingView;
         this.collapseBehaviour = collapseBehaviour;
-        ViewConfiguration vc = ViewConfiguration.get(NavigationApplication.instance);
-        scaledTouchSlop = vc.getScaledTouchSlop();
-        minimumFlingVelocity = vc.getScaledMinimumFlingVelocity();
+        scaledTouchSlop = ViewConfiguration.get(NavigationApplication.instance).getScaledTouchSlop();
         setFlingDetector();
     }
 
@@ -52,30 +46,13 @@ public class CollapseCalculator {
             flingDetector =
                     new GestureDetector(NavigationApplication.instance, new GestureDetector.SimpleOnGestureListener() {
                         @Override
-                        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, final float velocityY) {
+                        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
                             final Direction direction = getScrollDirection(e1, e2);
-                            final float diff = Math.abs(e2.getRawY() - e1.getRawY());
-
-                            if (Math.abs(velocityY) <  minimumFlingVelocity || diff < FLING_DISTANCE_PIXELS_THRESHOLD) {
-                                Log.w("FLING", "Consuming fling v: [" + velocityY + "] dy: [" + diff + "]");
-                                return true;
-                            }
-
-                            if (canCollapse && totalCollapse != 0) {
+                            if (canCollapse(direction) && totalCollapse != 0) {
                                 flingListener.onFling(new CollapseAmount(direction));
-                                if (direction == Direction.Up) {
-                                    view.asView().postOnAnimation(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            Log.v("FLING", "v: [" + velocityY + "] dy: [" + diff + "]");
-                                            scrollView.fling((int) Math.abs(velocityY));
-                                        }
-                                    });
-                                }
                                 return true;
                             }
-
-                            return true;
+                            return false;
                         }
 
                         private Direction getScrollDirection(MotionEvent e1, MotionEvent e2) {
@@ -99,8 +76,7 @@ public class CollapseCalculator {
     @NonNull
     CollapseAmount calculate(MotionEvent event) {
         updateInitialTouchY(event);
-        final boolean isFling = flingDetector.onTouchEvent(event);
-        CollapseAmount touchUpCollapse = shouldCollapseOnTouchUp(event, isFling);
+        CollapseAmount touchUpCollapse = shouldCollapseOnTouchUp(event);
         if (touchUpCollapse != CollapseAmount.None) {
             previousTouchEvent = MotionEvent.obtain(event);
             return touchUpCollapse;
@@ -121,8 +97,9 @@ public class CollapseCalculator {
         }
     }
 
-    private CollapseAmount shouldCollapseOnTouchUp(MotionEvent event, boolean isFling) {
-        if (isTouchUp(event) && collapseBehaviour.shouldCollapseOnTouchUp() && !isFling) {
+    private CollapseAmount shouldCollapseOnTouchUp(MotionEvent event) {
+        if ((collapseBehaviour.shouldCollapseOnTouchUp())
+            && !flingDetector.onTouchEvent(event) && isTouchUp(event)) {
             final float visibilityPercentage = view.getCurrentCollapseValue() / view.getFinalCollapseValue();
             Direction direction = visibilityPercentage >= 0.5f ? Direction.Up : Direction.Down;
             if (canCollapse(direction) && totalCollapse != 0) {
@@ -140,14 +117,10 @@ public class CollapseCalculator {
     }
 
     private boolean canCollapse(Direction direction) {
-        if (view == null) {
-            return false;
-        }
         checkCollapseLimits();
         return (isNotCollapsedOrExpended() ||
                (canCollapse && isExpendedAndScrollingUp(direction)) ||
-               (canExpend && isCollapsedAndScrollingDown(direction) && collapseBehaviour.canExpend(scrollView.getScrollY()))
-        );
+               (canExpend && isCollapsedAndScrollingDown(direction)));
     }
 
     private boolean isScrolling() {
@@ -185,7 +158,8 @@ public class CollapseCalculator {
 
     private boolean calculateCanExpend(float currentTopBarTranslation, float finalExpendedTranslation, float finalCollapsedTranslation) {
         return currentTopBarTranslation >= finalCollapsedTranslation &&
-               currentTopBarTranslation < finalExpendedTranslation;
+               currentTopBarTranslation < finalExpendedTranslation &&
+               (scrollView.getScrollY() == 0 || (collapseBehaviour instanceof TitleBarHideOnScrollBehaviour || collapseBehaviour instanceof CollapseTitleBarBehaviour));
     }
 
     private boolean isCollapsedAndScrollingDown(Direction direction) {
@@ -215,10 +189,9 @@ public class CollapseCalculator {
         }
         collapse = calculateCollapse(y);
         totalCollapse += collapse;
-        totalCollapseDeltaSinceTouchDown += Math.abs(y - previousCollapseY);
         previousCollapseY = y;
         previousTouchEvent = MotionEvent.obtain(event);
-        return totalCollapseDeltaSinceTouchDown < scaledTouchSlop ? CollapseAmount.None : new CollapseAmount(collapse);
+        return Math.abs(totalCollapse) < scaledTouchSlop ? CollapseAmount.None : new CollapseAmount(collapse);
     }
 
     private float calculateCollapse(float y) {
@@ -256,7 +229,6 @@ public class CollapseCalculator {
 
     private void saveInitialTouchY(MotionEvent event) {
         totalCollapse = 0;
-        totalCollapseDeltaSinceTouchDown = 0;
         touchDownY = event.getRawY();
         scrollY = scrollView.getScrollY();
         previousCollapseY = touchDownY;

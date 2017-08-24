@@ -1,22 +1,21 @@
 /*eslint-disable*/
 import React from 'react';
 import {AppRegistry} from 'react-native';
-import platformSpecific from './deprecated/platformSpecificDeprecated';
-import {Screen} from './Screen';
+import platformSpecific from './platformSpecificDeprecated';
+import Screen from './Screen';
 
 import PropRegistry from './PropRegistry';
 
 const registeredScreens = {};
-const _allNavigatorEventHandlers = {};
 
 function registerScreen(screenID, generator) {
   registeredScreens[screenID] = generator;
   AppRegistry.registerComponent(screenID, generator);
 }
 
-function registerComponent(screenID, generator, store = undefined, Provider = undefined, options = {}) {
+function registerComponent(screenID, generator, store = undefined, Provider = undefined) {
   if (store && Provider) {
-    return _registerComponentRedux(screenID, generator, store, Provider, options);
+    return _registerComponentRedux(screenID, generator, store, Provider);
   } else {
     return _registerComponentNoRedux(screenID, generator);
   }
@@ -25,10 +24,6 @@ function registerComponent(screenID, generator, store = undefined, Provider = un
 function _registerComponentNoRedux(screenID, generator) {
   const generatorWrapper = function() {
     const InternalComponent = generator();
-    if (!InternalComponent) {
-      console.error(`Navigation: ${screenID} registration result is 'undefined'`);
-    }
-    
     return class extends Screen {
       static navigatorStyle = InternalComponent.navigatorStyle || {};
       static navigatorButtons = InternalComponent.navigatorButtons || {};
@@ -57,7 +52,7 @@ function _registerComponentNoRedux(screenID, generator) {
   return generatorWrapper;
 }
 
-function _registerComponentRedux(screenID, generator, store, Provider, options) {
+function _registerComponentRedux(screenID, generator, store, Provider) {
   const generatorWrapper = function() {
     const InternalComponent = generator();
     return class extends Screen {
@@ -79,7 +74,7 @@ function _registerComponentRedux(screenID, generator, store, Provider, options) 
 
       render() {
         return (
-          <Provider store={store} {...options}>
+          <Provider store={store}>
             <InternalComponent testID={screenID} navigator={this.navigator} {...this.state.internalProps} />
           </Provider>
         );
@@ -99,6 +94,15 @@ function getRegisteredScreen(screenID) {
   return generator();
 }
 
+function push(navigatorID, params = {}) {
+    var navigator = {
+        navigatorID:navigatorID,
+        navigatorEventID:"",
+        screenInstanceID:"",
+    };
+    platformSpecific.navigatorPush(navigator, params);
+}
+
 function showModal(params = {}) {
   return platformSpecific.showModal(params);
 }
@@ -111,10 +115,6 @@ function dismissAllModals(params = {}) {
   return platformSpecific.dismissAllModals(params);
 }
 
-function showSnackbar(params = {}) {
-  return platformSpecific.showSnackbar(params);
-}
-
 function showLightBox(params = {}) {
   return platformSpecific.showLightBox(params);
 }
@@ -123,74 +123,13 @@ function dismissLightBox(params = {}) {
   return platformSpecific.dismissLightBox(params);
 }
 
-function showInAppNotification(params = {}) {
-  return platformSpecific.showInAppNotification(params);
-}
-
-function dismissInAppNotification(params = {}) {
-  return platformSpecific.dismissInAppNotification(params);
-}
-
-function startTabBasedApp(params) {
-  return platformSpecific.startTabBasedApp(params);
-}
-
-function startSingleScreenApp(params) {
-  return platformSpecific.startSingleScreenApp(params);
-}
-
-function setEventHandler(navigatorEventID, eventHandler) {
-  _allNavigatorEventHandlers[navigatorEventID] = eventHandler;
-}
-
-function clearEventHandler(navigatorEventID) {
-  delete _allNavigatorEventHandlers[navigatorEventID];
-}
-
-function handleDeepLink(params = {}) {
-  const { link, payload } = params;
-
-  if (!link) return;
-
-  const event = {
-    type: 'DeepLink',
-    link,
-    ...(payload ? { payload } : {})
-  };
-  for (let i in _allNavigatorEventHandlers) {
-    _allNavigatorEventHandlers[i](event);
-  }
-}
-
-async function isAppLaunched() {
-  return await platformSpecific.isAppLaunched();
-}
-
-async function isRootLaunched() {
-  return await platformSpecific.isRootLaunched();
-}
-
-function getCurrentlyVisibleScreenId() {
-  return platformSpecific.getCurrentlyVisibleScreenId();
-}
-
 export default {
   getRegisteredScreen,
-  getCurrentlyVisibleScreenId,
   registerComponent,
+  push:push,
   showModal: showModal,
   dismissModal: dismissModal,
   dismissAllModals: dismissAllModals,
-  showSnackbar: showSnackbar,
   showLightBox: showLightBox,
   dismissLightBox: dismissLightBox,
-  showInAppNotification: showInAppNotification,
-  dismissInAppNotification: dismissInAppNotification,
-  startTabBasedApp: startTabBasedApp,
-  startSingleScreenApp: startSingleScreenApp,
-  setEventHandler: setEventHandler,
-  clearEventHandler: clearEventHandler,
-  handleDeepLink: handleDeepLink,
-  isAppLaunched: isAppLaunched,
-  isRootLaunched: isRootLaunched
 };

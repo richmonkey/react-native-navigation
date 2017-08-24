@@ -6,7 +6,6 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.StrictMode;
 import android.support.annotation.NonNull;
-import android.util.Log;
 
 import com.reactnativenavigation.NavigationApplication;
 
@@ -14,7 +13,7 @@ import java.io.IOException;
 import java.net.URL;
 
 public class JsDevImageLoader {
-    private static final String TAG = "JsDevImageLoader";
+
     public static Drawable loadIcon(String iconDevUri) {
         try {
             StrictMode.ThreadPolicy threadPolicy = StrictMode.getThreadPolicy();
@@ -25,8 +24,7 @@ public class JsDevImageLoader {
             StrictMode.setThreadPolicy(threadPolicy);
             return drawable;
         } catch (Exception e) {
-            Log.e(TAG, "Unable to load icon: " + iconDevUri);
-            return new BitmapDrawable();
+            throw new RuntimeException(iconDevUri, e);
         }
     }
 

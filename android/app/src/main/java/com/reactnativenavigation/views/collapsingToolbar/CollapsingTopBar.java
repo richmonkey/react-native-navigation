@@ -1,61 +1,36 @@
 package com.reactnativenavigation.views.collapsingToolbar;
 
 import android.content.Context;
-import android.content.res.TypedArray;
-import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ScrollView;
 
 import com.reactnativenavigation.params.CollapsingTopBarParams;
-import com.reactnativenavigation.params.NavigationParams;
-import com.reactnativenavigation.params.StyleParams;
-import com.reactnativenavigation.screens.Screen;
 import com.reactnativenavigation.utils.ViewUtils;
 import com.reactnativenavigation.views.TitleBar;
 import com.reactnativenavigation.views.TopBar;
 
-import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
-import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
-
 public class CollapsingTopBar extends TopBar implements CollapsingView {
     private CollapsingTopBarBackground collapsingTopBarBackground;
-    private @Nullable CollapsingTopBarReactHeader header;
     private ScrollListener scrollListener;
     private float finalCollapsedTranslation;
-    private final StyleParams styleParams;
-    private final CollapsingTopBarParams params;
+    private CollapsingTopBarParams params;
     private final ViewCollapser viewCollapser;
-    private final int topBarHeight;
 
-    @Override
-    public void destroy() {
-        if (params.hasReactView()) {
-            assert header != null;
-            header.unmountReactView();
-        }
-    }
-
-    public CollapsingTopBar(Context context, final StyleParams params) {
+    public CollapsingTopBar(Context context, final CollapsingTopBarParams params) {
         super(context);
-        styleParams = params;
-        this.params = params.collapsingTopBarParams;
-        topBarHeight = calculateTopBarHeight();
-        createBackgroundImage();
-        calculateFinalCollapsedTranslation();
+        this.params = params;
+        createCollapsingTopBar(params);
+        calculateFinalCollapsedTranslation(params);
         viewCollapser = new ViewCollapser(this);
     }
 
-    private void calculateFinalCollapsedTranslation() {
+    private void calculateFinalCollapsedTranslation(final CollapsingTopBarParams params) {
         ViewUtils.runOnPreDraw(this, new Runnable() {
             @Override
             public void run() {
-                if (params.hasBackgroundImage() || params.hasReactView()) {
-                    finalCollapsedTranslation = getCollapsedHeight() - getHeight();
-                    if (styleParams.topBarCollapseOnScroll) {
-                        finalCollapsedTranslation += titleBar.getHeight();
-                    }
+                if (params.hasBackgroundImage()) {
+                    finalCollapsedTranslation =
+                            getCollapsingTopBarBackground().getCollapsedTopBarHeight() - getHeight();
                 } else {
                     finalCollapsedTranslation = -titleBar.getHeight();
                 }
@@ -67,7 +42,7 @@ public class CollapsingTopBar extends TopBar implements CollapsingView {
         this.scrollListener = scrollListener;
     }
 
-    private void createBackgroundImage() {
+    private void createCollapsingTopBar(CollapsingTopBarParams params) {
         if (params.hasBackgroundImage()) {
             collapsingTopBarBackground = new CollapsingTopBarBackground(getContext(), params);
             LayoutParams lp = new LayoutParams(LayoutParams.MATCH_PARENT, (int) CollapsingTopBarBackground.MAX_HEIGHT);
@@ -75,82 +50,29 @@ public class CollapsingTopBar extends TopBar implements CollapsingView {
         }
     }
 
-    private void createReactHeader(CollapsingTopBarParams params) {
-        if (params.hasReactView()) {
-            header = new CollapsingTopBarReactHeader(getContext(),
-                    params,
-                    new NavigationParams(Bundle.EMPTY),
-                    scrollListener,
-                    new Screen.OnDisplayListener() {
-                        @Override
-                        public void onDisplay() {
-                            calculateFinalCollapsedTranslation();
-                            assert header != null;
-                            header.setOnDisplayListener(null);
-                        }
-                    });
-            titleBarAndContextualMenuContainer.addView(header, new LayoutParams(MATCH_PARENT, WRAP_CONTENT));
-            header.setOnHiddenListener(new CollapsingTopBarReactHeaderAnimator.OnHiddenListener() {
-                @Override
-                public void onHidden() {
-                    titleBar.showTitle();
-                }
-            });
-            header.setOnVisibleListener(new CollapsingTopBarReactHeaderAnimator.OnVisibleListener() {
-                @Override
-                public void onVisible() {
-                    titleBar.hideTitle();
-                }
-            });
-        }
-    }
-
     @Override
     protected TitleBar createTitleBar() {
-        if (params.hasBackgroundImage() || params.hasReactView()) {
-            createReactHeader(params);
+        if (params.hasBackgroundImage()) {
             return new CollapsingTitleBar(getContext(),
-                    getCollapsedHeight(),
-                    scrollListener,
-                    params);
+                    collapsingTopBarBackground.getCollapsedTopBarHeight(),
+                    scrollListener);
         } else {
             return super.createTitleBar();
         }
     }
 
-    @Override
-    protected void addTitleBar(StyleParams styleParams) {
-        if (params.hasReactView()) {
-            titleBarAndContextualMenuContainer.addView(titleBar, new ViewGroup.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
-        } else {
-            super.addTitleBar(styleParams);
-        }
+    public CollapsingTopBarBackground getCollapsingTopBarBackground() {
+        return collapsingTopBarBackground;
     }
 
     @Override
     public void collapse(CollapseAmount amount) {
         viewCollapser.collapse(amount);
         if (titleBar instanceof CollapsingTitleBar) {
-            ((CollapsingTitleBar) titleBar).collapse(amount);
+            ((CollapsingTitleBar) titleBar).collapse(amount.get());
         }
         if (collapsingTopBarBackground != null) {
             collapsingTopBarBackground.collapse(amount.get());
-        }
-        if (header != null) {
-            header.collapse(amount.get());
-        }
-    }
-
-    @Override
-    public void fling(CollapseAmount amount) {
-        if (titleBar instanceof CollapsingTitleBar) {
-            if (header != null) {
-                viewCollapser.fling(amount, (CollapsingTitleBar) titleBar, header);
-            } else {
-                viewCollapser.fling(amount, (CollapsingTitleBar) titleBar);
-            }
-        } else {
-            viewCollapser.collapse(amount);
         }
     }
 
@@ -164,23 +86,13 @@ public class CollapsingTopBar extends TopBar implements CollapsingView {
     }
 
     public int getCollapsedHeight() {
-        if (topTabs != null) {
+        if (params.hasBackgroundImage()) {
+            return collapsingTopBarBackground.getCollapsedTopBarHeight();
+        } else if (topTabs != null) {
             return topTabs.getHeight();
-        } else if (params.hasBackgroundImage()) {
-            return topBarHeight;
-        } else if (params.hasReactView()) {
-            return topBarHeight;
         } else {
             return titleBar.getHeight();
         }
-    }
-
-    private int calculateTopBarHeight() {
-        int[] attrs = new int[] {android.R.attr.actionBarSize};
-        TypedArray ta = getContext().obtainStyledAttributes(attrs);
-        final int result = ta.getDimensionPixelSize(0, -1);
-        ta.recycle();
-        return result;
     }
 
     @Override
@@ -191,9 +103,5 @@ public class CollapsingTopBar extends TopBar implements CollapsingView {
     @Override
     public View asView() {
         return this;
-    }
-
-    public int getTitleBarHeight() {
-        return titleBar.getHeight();
     }
 }
