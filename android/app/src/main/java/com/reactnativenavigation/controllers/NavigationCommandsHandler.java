@@ -34,6 +34,8 @@ public class NavigationCommandsHandler {
     private static HashMap<String, Class<?>> activitieClasses = new HashMap<>();
     private static HashMap<String, Activity> activities = new HashMap<>();
 
+    private static Class<?> customActivityClass = null;
+
     static class Navigator {
         public String navigatorID;
         public ArrayList<Activity> activities;
@@ -81,7 +83,9 @@ public class NavigationCommandsHandler {
         activitieClasses.put(id, cls);
     }
 
-
+    public static void setCustomNavigationActivityClass(Class<?> cls) {
+        customActivityClass = cls;
+    }
 
     public static void push(final Bundle screenParams, final boolean portraitOnlyMode,
                             final boolean landscapeOnlyMode, final String navigatorID,
@@ -112,7 +116,8 @@ public class NavigationCommandsHandler {
                         } catch (IllegalAccessException e) {
                             e.printStackTrace();
                         }
-
+                    } else if (customActivityClass != null) {
+                        intent = new Intent(context, customActivityClass);
                     } else if (portraitOnlyMode) {
                         intent = new Intent(context, PortraitNavigationActivity.class);
                     } else if (landscapeOnlyMode) {

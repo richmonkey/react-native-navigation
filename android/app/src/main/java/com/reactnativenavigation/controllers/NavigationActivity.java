@@ -42,7 +42,7 @@ public class NavigationActivity extends AppCompatActivity implements DefaultHard
 
     private ActivityParams activityParams;
     private Layout layout;
-    @Nullable private PermissionListener mPermissionListener;
+    @Nullable protected PermissionListener mPermissionListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
