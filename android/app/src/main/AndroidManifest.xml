@@ -2,9 +2,18 @@
           package="com.reactnativenavigation">
 
     <application>
+
+        <activity android:name="com.reactnativenavigation.controllers.NavigationActivity"
+            android:theme="@style/NoActionBar"/>
         <activity
-            android:name=".controllers.NavigationActivity"
-            android:configChanges="keyboard|keyboardHidden|orientation|screenSize"/>
+            android:name="com.reactnativenavigation.controllers.PortraitNavigationActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/NoActionBar"/>
+        <activity
+            android:name="com.reactnativenavigation.controllers.LandscapeNavigationActivity"
+            android:screenOrientation="landscape"
+            android:theme="@style/NoActionBar"/>
+
         <activity
             android:name="com.facebook.react.devsupport.DevSettingsActivity"
             android:exported="false" />

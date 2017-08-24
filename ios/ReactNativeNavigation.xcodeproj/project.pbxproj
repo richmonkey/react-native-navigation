@@ -8,23 +8,33 @@
 
 /* Begin PBXBuildFile section */
 		26AFF3F51D7EEE2400CBA211 /* RCCTitleViewHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 26AFF3F41D7EEE2400CBA211 /* RCCTitleViewHelper.m */; };
+		6D50D4F11F4E7D2E00B667EC /* RCCManager.h in Copy Header */ = {isa = PBXBuildFile; fileRef = CC84A1931C1A0C4E00B3A6A2 /* RCCManager.h */; };
+		6D50D4F21F4E7D2E00B667EC /* RCCManagerModule.h in Copy Header */ = {isa = PBXBuildFile; fileRef = CC84A1951C1A0C4E00B3A6A2 /* RCCManagerModule.h */; };
+		6D50D4F31F4E7D2E00B667EC /* RCCNavigationController.h in Copy Header */ = {isa = PBXBuildFile; fileRef = CC84A1971C1A0C4E00B3A6A2 /* RCCNavigationController.h */; };
+		6D50D4F41F4E7D2E00B667EC /* RCCViewController.h in Copy Header */ = {isa = PBXBuildFile; fileRef = CC84A19B1C1A0C4E00B3A6A2 /* RCCViewController.h */; };
+		6D50D4F51F4E7D2E00B667EC /* RCCLightBox.h in Copy Header */ = {isa = PBXBuildFile; fileRef = D84813171C8C5EB700051BAF /* RCCLightBox.h */; };
 		CC84A19E1C1A0C4E00B3A6A2 /* RCCManager.m in Sources */ = {isa = PBXBuildFile; fileRef = CC84A1941C1A0C4E00B3A6A2 /* RCCManager.m */; };
 		CC84A19F1C1A0C4E00B3A6A2 /* RCCManagerModule.m in Sources */ = {isa = PBXBuildFile; fileRef = CC84A1961C1A0C4E00B3A6A2 /* RCCManagerModule.m */; };
 		CC84A1A01C1A0C4E00B3A6A2 /* RCCNavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = CC84A1981C1A0C4E00B3A6A2 /* RCCNavigationController.m */; };
-		CC84A1A11C1A0C4E00B3A6A2 /* RCCTabBarController.m in Sources */ = {isa = PBXBuildFile; fileRef = CC84A19A1C1A0C4E00B3A6A2 /* RCCTabBarController.m */; };
 		CC84A1A21C1A0C4E00B3A6A2 /* RCCViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = CC84A19C1C1A0C4E00B3A6A2 /* RCCViewController.m */; };
 		D84813191C8C5EB700051BAF /* RCCLightBox.m in Sources */ = {isa = PBXBuildFile; fileRef = D84813181C8C5EB700051BAF /* RCCLightBox.m */; };
 		D8D779981D04B7180050CFEA /* RCTHelpers.m in Sources */ = {isa = PBXBuildFile; fileRef = D8D779971D04B7180050CFEA /* RCTHelpers.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		D8AFADBB1BEE6F3F00A4592D /* CopyFiles */ = {
+		D8AFADBB1BEE6F3F00A4592D /* Copy Header */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "include/$(PRODUCT_NAME)";
 			dstSubfolderSpec = 16;
 			files = (
+				6D50D4F11F4E7D2E00B667EC /* RCCManager.h in Copy Header */,
+				6D50D4F21F4E7D2E00B667EC /* RCCManagerModule.h in Copy Header */,
+				6D50D4F31F4E7D2E00B667EC /* RCCNavigationController.h in Copy Header */,
+				6D50D4F41F4E7D2E00B667EC /* RCCViewController.h in Copy Header */,
+				6D50D4F51F4E7D2E00B667EC /* RCCLightBox.h in Copy Header */,
 			);
+			name = "Copy Header";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
@@ -38,8 +48,6 @@
 		CC84A1961C1A0C4E00B3A6A2 /* RCCManagerModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCCManagerModule.m; sourceTree = "<group>"; };
 		CC84A1971C1A0C4E00B3A6A2 /* RCCNavigationController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCNavigationController.h; sourceTree = "<group>"; };
 		CC84A1981C1A0C4E00B3A6A2 /* RCCNavigationController.m */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.objc; path = RCCNavigationController.m; sourceTree = "<group>"; tabWidth = 2; };
-		CC84A1991C1A0C4E00B3A6A2 /* RCCTabBarController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCTabBarController.h; sourceTree = "<group>"; };
-		CC84A19A1C1A0C4E00B3A6A2 /* RCCTabBarController.m */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.objc; path = RCCTabBarController.m; sourceTree = "<group>"; tabWidth = 2; };
 		CC84A19B1C1A0C4E00B3A6A2 /* RCCViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCViewController.h; sourceTree = "<group>"; };
 		CC84A19C1C1A0C4E00B3A6A2 /* RCCViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.objc; path = RCCViewController.m; sourceTree = "<group>"; tabWidth = 2; };
 		D84813171C8C5EB700051BAF /* RCCLightBox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCLightBox.h; sourceTree = "<group>"; };
@@ -72,8 +80,6 @@
 				CC84A1961C1A0C4E00B3A6A2 /* RCCManagerModule.m */,
 				CC84A1971C1A0C4E00B3A6A2 /* RCCNavigationController.h */,
 				CC84A1981C1A0C4E00B3A6A2 /* RCCNavigationController.m */,
-				CC84A1991C1A0C4E00B3A6A2 /* RCCTabBarController.h */,
-				CC84A19A1C1A0C4E00B3A6A2 /* RCCTabBarController.m */,
 				CC84A19B1C1A0C4E00B3A6A2 /* RCCViewController.h */,
 				CC84A19C1C1A0C4E00B3A6A2 /* RCCViewController.m */,
 				D84813171C8C5EB700051BAF /* RCCLightBox.h */,
@@ -108,7 +114,7 @@
 			buildPhases = (
 				D8AFADB91BEE6F3F00A4592D /* Sources */,
 				D8AFADBA1BEE6F3F00A4592D /* Frameworks */,
-				D8AFADBB1BEE6F3F00A4592D /* CopyFiles */,
+				D8AFADBB1BEE6F3F00A4592D /* Copy Header */,
 			);
 			buildRules = (
 			);
@@ -161,7 +167,6 @@
 				D8D779981D04B7180050CFEA /* RCTHelpers.m in Sources */,
 				D84813191C8C5EB700051BAF /* RCCLightBox.m in Sources */,
 				CC84A19E1C1A0C4E00B3A6A2 /* RCCManager.m in Sources */,
-				CC84A1A11C1A0C4E00B3A6A2 /* RCCTabBarController.m in Sources */,
 				CC84A1A21C1A0C4E00B3A6A2 /* RCCViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
