@@ -31,6 +31,12 @@ RCT_EXPORT_MODULE(RCCManager);
 
 #pragma mark - constatnts export
 
+
++(BOOL)requiresMainQueueSetup
+{
+    return YES;
+}
+
 - (NSDictionary *)constantsToExport
 {
     return @{
