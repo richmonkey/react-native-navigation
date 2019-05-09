@@ -135,35 +135,6 @@ public class NavigationCommandsHandler {
         });
     }
 
-    public static void pushScreen(Bundle screenParams) {
-        final NavigationActivity currentActivity = NavigationActivity.currentActivity;
-        if (currentActivity == null) {
-            return;
-        }
-
-        final ScreenParams params = ScreenParamsParser.parse(screenParams);
-        NavigationApplication.instance.runOnMainThread(new Runnable() {
-            @Override
-            public void run() {
-                currentActivity.push(params);
-            }
-        });
-    }
-
-    public static void popScreen(Bundle screenParams) {
-        final NavigationActivity currentActivity = NavigationActivity.currentActivity;
-        if (currentActivity == null) {
-            return;
-        }
-
-        final ScreenParams params = ScreenParamsParser.parse(screenParams);
-        NavigationApplication.instance.runOnMainThread(new Runnable() {
-            @Override
-            public void run() {
-                currentActivity.pop(params);
-            }
-        });
-    }
 
     public static void pop(Bundle screenParams) {
         final NavigationActivity currentActivity = NavigationActivity.currentActivity;
@@ -313,35 +284,8 @@ public class NavigationCommandsHandler {
         });
     }
 
-    public static void setScreenFab(final String screenInstanceId, final String navigatorEventId, final FabParams fab) {
-        final NavigationActivity currentActivity = NavigationActivity.currentActivity;
-        if (currentActivity == null) {
-            return;
-        }
-        NavigationApplication.instance.runOnMainThread(new Runnable() {
-            @Override
-            public void run() {
-                currentActivity.setScreenFab(screenInstanceId, navigatorEventId, fab);
-            }
-        });
-    }
 
 
-
-
-    public static void showSnackbar(final SnackbarParams params) {
-        final NavigationActivity currentActivity = NavigationActivity.currentActivity;
-        if (currentActivity == null) {
-            return;
-        }
-
-        NavigationApplication.instance.runOnMainThread(new Runnable() {
-            @Override
-            public void run() {
-                currentActivity.showSnackbar(params);
-            }
-        });
-    }
 
     public static void showContextualMenu(final String screenInstanceId, final ContextualMenuParams params, final Callback onButtonClicked) {
         final NavigationActivity currentActivity = NavigationActivity.currentActivity;

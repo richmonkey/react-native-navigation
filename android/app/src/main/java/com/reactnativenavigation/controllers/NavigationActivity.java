@@ -153,13 +153,6 @@ public class NavigationActivity extends AppCompatActivity implements DefaultHard
         return JsDevReloadHandler.onKeyUp(getCurrentFocus(), keyCode) || super.onKeyUp(keyCode, event);
     }
 
-    void push(ScreenParams params) {
-        layout.push(params);
-    }
-
-    void pop(ScreenParams params) {
-        layout.pop(params);
-    }
 
     //TODO all these setters should be combined to something like setStyle
     void setTopBarVisible(String screenInstanceId, boolean hidden, boolean animated) {
@@ -183,14 +176,6 @@ public class NavigationActivity extends AppCompatActivity implements DefaultHard
         layout.setTitleBarLeftButton(screenInstanceId, navigatorEventId, titleBarLeftButton);
     }
 
-    void setScreenFab(String screenInstanceId, String navigatorEventId, FabParams fab) {
-        layout.setFab(screenInstanceId, navigatorEventId, fab);
-    }
-
-
-    public void showSnackbar(SnackbarParams params) {
-        layout.showSnackbar(params);
-    }
 
     public void showContextualMenu(String screenInstanceId, ContextualMenuParams params, Callback onButtonClicked) {
         layout.showContextualMenu(screenInstanceId, params, onButtonClicked);

@@ -39,11 +39,10 @@ public abstract class Screen extends RelativeLayout implements Subscriber {
     }
 
     protected final AppCompatActivity activity;
-    protected final ScreenParams screenParams;
+    public final ScreenParams screenParams;
     protected TopBar topBar;
     private final LeftButtonOnClickListener leftButtonOnClickListener;
     private VisibilityAnimator topBarVisibilityAnimator;
-    private ScreenAnimator screenAnimator;
     protected final StyleParams styleParams;
 
     public Screen(AppCompatActivity activity, ScreenParams screenParams, LeftButtonOnClickListener leftButtonOnClickListener) {
@@ -52,7 +51,6 @@ public abstract class Screen extends RelativeLayout implements Subscriber {
         this.screenParams = screenParams;
         styleParams = screenParams.styleParams;
         this.leftButtonOnClickListener = leftButtonOnClickListener;
-        screenAnimator = new ScreenAnimator(this);
         createViews();
         EventBus.instance.register(this);
     }
@@ -217,22 +215,6 @@ public abstract class Screen extends RelativeLayout implements Subscriber {
 
     public abstract void setOnDisplayListener(OnDisplayListener onContentViewDisplayedListener);
 
-    public void show() {
-        screenAnimator.show(screenParams.animateScreenTransitions);
-    }
-
-    public void show(boolean animated) {
-        screenAnimator.show(animated);
-    }
-
-    public void show(boolean animated, Runnable onAnimationEnd) {
-        setStyle();
-        screenAnimator.show(animated, onAnimationEnd);
-    }
-
-    public void hide(boolean animated, Runnable onAnimatedEnd) {
-        screenAnimator.hide(animated, onAnimatedEnd);
-    }
 
     public void showContextualMenu(ContextualMenuParams params, Callback onButtonClicked) {
         topBar.showContextualMenu(params, styleParams, onButtonClicked);

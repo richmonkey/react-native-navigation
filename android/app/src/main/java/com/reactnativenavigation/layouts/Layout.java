@@ -9,10 +9,11 @@ import com.reactnativenavigation.params.SnackbarParams;
 import com.reactnativenavigation.params.TitleBarButtonParams;
 import com.reactnativenavigation.params.TitleBarLeftButtonParams;
 import com.reactnativenavigation.screens.Screen;
+import com.reactnativenavigation.views.LeftButtonOnClickListener;
 
 import java.util.List;
 
-public interface Layout extends ScreenStackContainer {
+public interface Layout extends LeftButtonOnClickListener {
     View asView();
 
     boolean onBackPressed();
@@ -27,14 +28,11 @@ public interface Layout extends ScreenStackContainer {
 
     void setTitleBarLeftButton(String screenInstanceId, String navigatorEventId, TitleBarLeftButtonParams titleBarLeftButtonParams);
 
-    void setFab(String screenInstanceId, String navigatorEventId, FabParams fabParams);
-
-    void showSnackbar(SnackbarParams params);
-
-
     void showContextualMenu(String screenInstanceId, ContextualMenuParams params, Callback onButtonClicked);
 
     void dismissContextualMenu(String screenInstanceId);
 
     Screen getCurrentScreen();
+
+    void destroy();
 }

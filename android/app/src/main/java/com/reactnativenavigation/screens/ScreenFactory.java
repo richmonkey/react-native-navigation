@@ -5,8 +5,8 @@ import android.support.v7.app.AppCompatActivity;
 import com.reactnativenavigation.params.ScreenParams;
 import com.reactnativenavigation.views.LeftButtonOnClickListener;
 
-class ScreenFactory {
-    static Screen create(AppCompatActivity activity,
+public class ScreenFactory {
+    public static Screen create(AppCompatActivity activity,
                          ScreenParams screenParams,
                          LeftButtonOnClickListener leftButtonOnClickListener) {
          if (screenParams.hasTopTabs()) {
