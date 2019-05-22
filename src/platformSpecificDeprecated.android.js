@@ -85,7 +85,6 @@ var newPlatformSpecific = {
         NativeReactModule.dismissAllModals();
     },
 
-    
 };
 
 
@@ -512,6 +511,11 @@ function dismissContextualMenu() {
   newPlatformSpecific.dismissContextualMenu();
 }
 
+function registerNavigatorButtons(screenID, navigatorButtons) {
+    //todo
+    //NativeReactModule.registerNavigatorButtons(screenID, navigatorButtons);
+}
+
 export default {
   navigatorPush,
   navigatorPop,
@@ -525,5 +529,6 @@ export default {
   navigatorToggleNavBar,
   showSnackbar,
   showContextualMenu,
-  dismissContextualMenu
+  dismissContextualMenu,
+  registerNavigatorButtons    
 };

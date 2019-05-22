@@ -1,6 +1,8 @@
 /*eslint-disable*/
 import Navigation from './Navigation';
-import Controllers, {Modal, Notification} from './controllers';
+var OriginalReactNative = require('react-native');
+var RCCManager = OriginalReactNative.NativeModules.RCCManager;
+import Controllers, {Modal} from './controllers';
 const React = Controllers.hijackReact();
 const {
   ControllerRegistry,
@@ -262,6 +264,10 @@ function dismissContextualMenu() {
   // Android only
 }
 
+function registerNavigatorButtons(screenID, navigatorButtons) {
+    RCCManager.registerNavigatorButtons(screenID, navigatorButtons);
+}
+
 export default {
   navigatorPush,
   navigatorPop,
@@ -276,5 +282,6 @@ export default {
   navigatorSetTitleImage,
   navigatorToggleNavBar,
   showContextualMenu,
-  dismissContextualMenu
+  dismissContextualMenu,
+  registerNavigatorButtons    
 };

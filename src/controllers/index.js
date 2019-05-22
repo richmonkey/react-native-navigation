@@ -9,9 +9,6 @@ var processColor = OriginalReactNative.processColor;
 
 var _controllerRegistry = {};
 
-function _getRandomId() {
-  return (Math.random()*1e20).toString(36);
-}
 
 function _processProperties(properties) {
   for (var property in properties) {
@@ -29,36 +26,19 @@ function _processProperties(properties) {
   }
 }
 
-function _setListener(callbackId, func) {
-  return NativeAppEventEmitter.addListener(callbackId, (...args) => func(...args));
-}
 
 function _processButtons(buttons) {
   if (!buttons) return;
-  var unsubscribes = [];
   for (var i = 0 ; i < buttons.length ; i++) {
     buttons[i] = Object.assign({}, buttons[i]);
     var button = buttons[i];
     _processProperties(button);
-    if (typeof button.onPress === "function") {
-      var onPressId = _getRandomId();
-      var onPressFunc = button.onPress;
-      button.onPress = onPressId;
-      var unsubscribe = _setListener(onPressId, onPressFunc);
-      unsubscribes.push(unsubscribe);
-    }
   }
-  return function () {
-    for (var i = 0 ; i < unsubscribes.length ; i++) {
-      if (unsubscribes[i]) { unsubscribes[i](); }
-    }
-  };
 }
 
 
 
 var Controllers = {
-
   createClass: function (app) {
     return app;
   },
@@ -96,7 +76,6 @@ var Controllers = {
   NavigationControllerIOS: function (id) {
     return {
       push: function (params) {
-        var unsubscribes = [];
         if (params['style']) {
           params['style'] = Object.assign({}, params['style']);
           _processProperties(params['style']);
@@ -105,19 +84,12 @@ var Controllers = {
           params['titleImage'] = resolveAssetSource(params['titleImage']);
         }
         if (params['leftButtons']) {
-          var unsubscribe = _processButtons(params['leftButtons']);
-          unsubscribes.push(unsubscribe);
+          _processButtons(params['leftButtons']);
         }
         if (params['rightButtons']) {
-          var unsubscribe = _processButtons(params['rightButtons']);
-          unsubscribes.push(unsubscribe);
+          _processButtons(params['rightButtons']);
         }
         RCCManager.NavigationControllerIOS(id, "push", params);
-        return function() {
-          for (var i = 0 ; i < unsubscribes.length ; i++) {
-            if (unsubscribes[i]) { unsubscribes[i](); }
-          }
-        };
       },
       pop: function (params) {
         RCCManager.NavigationControllerIOS(id, "pop", params);
@@ -136,38 +108,25 @@ var Controllers = {
         RCCManager.NavigationControllerIOS(id, "setTitle", params);
       },
       resetTo: function (params) {
-        var unsubscribes = [];
         if (params['style']) {
           params['style'] = Object.assign({}, params['style']);
           _processProperties(params['style']);
         }
         if (params['leftButtons']) {
-          var unsubscribe = _processButtons(params['leftButtons']);
-          unsubscribes.push(unsubscribe);
+          _processButtons(params['leftButtons']);
         }
         if (params['rightButtons']) {
-          var unsubscribe = _processButtons(params['rightButtons']);
-          unsubscribes.push(unsubscribe);
+          _processButtons(params['rightButtons']);
         }
         RCCManager.NavigationControllerIOS(id, "resetTo", params);
-        return function() {
-          for (var i = 0 ; i < unsubscribes.length ; i++) {
-            if (unsubscribes[i]) { unsubscribes[i](); }
-          }
-        };
-      },
-      setLeftButton: function () {
-        console.error('setLeftButton is deprecated, see setLeftButtons');
       },
       setLeftButtons: function (buttons, animated = false) {
-        var unsubscribe = _processButtons(buttons);
+        _processButtons(buttons);
         RCCManager.NavigationControllerIOS(id, "setButtons", {buttons: buttons, side: "left", animated: animated});
-        return unsubscribe;
       },
       setRightButtons: function (buttons, animated = false) {
-        var unsubscribe = _processButtons(buttons);
+        _processButtons(buttons);
         RCCManager.NavigationControllerIOS(id, "setButtons", {buttons: buttons, side: "right", animated: animated});
-        return unsubscribe;
       },
       setHidden: function(params = {}) {
         RCCManager.NavigationControllerIOS(id, "setHidden", params);

@@ -1,16 +1,14 @@
 /*eslint-disable*/
 import React from 'react';
 import {AppRegistry} from 'react-native';
-import platformSpecific from './platformSpecificDeprecated';
 import Screen from './Screen';
-
 import PropRegistry from './PropRegistry';
 
 const registeredScreens = {};
 
 function registerScreen(screenID, generator) {
-  registeredScreens[screenID] = generator;
-  AppRegistry.registerComponent(screenID, generator);
+    registeredScreens[screenID] = generator;
+    AppRegistry.registerComponent(screenID, generator);
 }
 
 function registerComponent(screenID, generator, store = undefined, Provider = undefined) {
@@ -94,42 +92,7 @@ function getRegisteredScreen(screenID) {
   return generator();
 }
 
-function push(navigatorID, params = {}) {
-    var navigator = {
-        navigatorID:navigatorID,
-        navigatorEventID:"",
-        screenInstanceID:"",
-    };
-    platformSpecific.navigatorPush(navigator, params);
-}
-
-function showModal(params = {}) {
-  return platformSpecific.showModal(params);
-}
-
-function dismissModal(params = {}) {
-  return platformSpecific.dismissModal(params);
-}
-
-function dismissAllModals(params = {}) {
-  return platformSpecific.dismissAllModals(params);
-}
-
-function showLightBox(params = {}) {
-  return platformSpecific.showLightBox(params);
-}
-
-function dismissLightBox(params = {}) {
-  return platformSpecific.dismissLightBox(params);
-}
-
 export default {
-  getRegisteredScreen,
-  registerComponent,
-  push:push,
-  showModal: showModal,
-  dismissModal: dismissModal,
-  dismissAllModals: dismissAllModals,
-  showLightBox: showLightBox,
-  dismissLightBox: dismissLightBox,
+    getRegisteredScreen,
+    registerComponent,
 };

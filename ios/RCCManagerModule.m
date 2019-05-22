@@ -54,6 +54,12 @@ RCT_EXPORT_MODULE(RCCManager);
 
 #pragma mark - RCT exported methods
 
+RCT_EXPORT_METHOD(registerNavigatorButtons:(NSString*)componentId navigatorButtons:(NSDictionary*)buttons)
+{
+    NSLog(@"registerNavigatorButtons:%@, %@", componentId, buttons);
+    [[RCCManager sharedIntance] registerComponentNavigatorButtons:componentId navigatorButtons:buttons];
+}
+                  
 RCT_EXPORT_METHOD(
 NavigationControllerIOS:(NSString*)controllerId performAction:(NSString*)performAction actionParams:(NSDictionary*)actionParams)
 {

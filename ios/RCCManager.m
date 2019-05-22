@@ -8,6 +8,7 @@
 @property (nonatomic, strong) RCTBridge *sharedBridge;
 @property (nonatomic, strong) NSURL *bundleURL;
 @property (nonatomic, strong) NSMutableDictionary *components;
+@property (nonatomic, strong) NSMutableDictionary *componensNavigatorButton;
 @end
 
 @implementation RCCManager
@@ -39,6 +40,7 @@
   {
     self.modulesRegistry = [@{} mutableCopy];
     self.components = [NSMutableDictionary dictionary];
+    self.componensNavigatorButton = [NSMutableDictionary dictionary];
   }
   return self;
 }
@@ -50,6 +52,15 @@
 -(Class)getComponent:(NSString*)component {
     return [self.components objectForKey:component];
 }
+
+-(void)registerComponentNavigatorButtons:(NSString*)component navigatorButtons:(NSDictionary*)buttons {
+  [self.componensNavigatorButton setObject:buttons forKey:component];
+}
+
+-(NSDictionary*)getComponentNavigatorButtons:(NSString*)component {
+  return [self.componensNavigatorButton objectForKey:component];
+}
+
 
 -(void)clearModuleRegistry {
   [self.modulesRegistry removeAllObjects];

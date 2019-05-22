@@ -21,4 +21,7 @@
 
 -(void)registerComponent:(NSString*)component class:(Class)cls;
 -(Class)getComponent:(NSString*)component;
+
+-(void)registerComponentNavigatorButtons:(NSString*)component navigatorButtons:(NSDictionary*)buttons;
+-(NSDictionary*)getComponentNavigatorButtons:(NSString*)component;
 @end
