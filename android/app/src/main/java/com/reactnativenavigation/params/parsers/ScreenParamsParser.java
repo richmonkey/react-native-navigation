@@ -6,10 +6,8 @@ import android.os.Parcelable;
 
 import com.reactnativenavigation.params.NavigationParams;
 import com.reactnativenavigation.params.ScreenParams;
-import com.reactnativenavigation.params.PageParams;
 import com.reactnativenavigation.react.ImageLoader;
 
-import java.util.List;
 import java.util.Set;
 
 public class ScreenParamsParser extends Parser {
@@ -36,11 +34,6 @@ public class ScreenParamsParser extends Parser {
         result.rightButtons = ButtonParser.parseRightButton(params);
         result.overrideBackPressInJs = params.getBoolean(OVERRIDE_BACK_PRESS, false);
         result.leftButton = ButtonParser.parseLeftButton(params);
-
-        result.topTabParams = parseTopTabs(params);
-
-        result.fabParams = ButtonParser.parseFab(params, result.navigationParams.navigatorEventId, result.navigationParams.screenInstanceId);
-
         result.tabLabel = getTabLabel(params);
         result.tabIcon = getTabIcon(params);
 
@@ -94,20 +87,4 @@ public class ScreenParamsParser extends Parser {
         return tabLabel;
     }
 
-    private static List<PageParams> parseTopTabs(Bundle params) {
-        List<PageParams> topTabParams = null;
-        if (hasKey(params, TOP_TABS)) {
-            topTabParams = new TopTabParamsParser().parse(params.getBundle(TOP_TABS));
-        }
-        return topTabParams;
-    }
-
-    List<ScreenParams> parseTabs(Bundle params) {
-        return parseBundle(params, new ParseStrategy<ScreenParams>() {
-            @Override
-            public ScreenParams parse(Bundle screen) {
-                return ScreenParamsParser.parse(screen);
-            }
-        });
-    }
 }

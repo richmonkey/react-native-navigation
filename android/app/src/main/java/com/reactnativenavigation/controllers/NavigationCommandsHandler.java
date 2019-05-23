@@ -5,13 +5,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
-import com.facebook.react.bridge.Callback;
 import com.reactnativenavigation.react.NavigationApplication;
 import com.reactnativenavigation.params.ActivityParams;
-import com.reactnativenavigation.params.ContextualMenuParams;
-import com.reactnativenavigation.params.FabParams;
 import com.reactnativenavigation.params.ScreenParams;
-import com.reactnativenavigation.params.SnackbarParams;
 import com.reactnativenavigation.params.TitleBarButtonParams;
 import com.reactnativenavigation.params.TitleBarLeftButtonParams;
 import com.reactnativenavigation.params.parsers.ActivityParamsParser;
@@ -285,33 +281,4 @@ public class NavigationCommandsHandler {
     }
 
 
-
-
-    public static void showContextualMenu(final String screenInstanceId, final ContextualMenuParams params, final Callback onButtonClicked) {
-        final NavigationActivity currentActivity = NavigationActivity.currentActivity;
-        if (currentActivity == null) {
-            return;
-        }
-
-        NavigationApplication.instance.runOnMainThread(new Runnable() {
-            @Override
-            public void run() {
-                currentActivity.showContextualMenu(screenInstanceId, params, onButtonClicked);
-            }
-        });
-    }
-
-    public static void dismissContextualMenu(final String screenInstanceId) {
-        final NavigationActivity currentActivity = NavigationActivity.currentActivity;
-        if (currentActivity == null) {
-            return;
-        }
-
-        NavigationApplication.instance.runOnMainThread(new Runnable() {
-            @Override
-            public void run() {
-                currentActivity.dismissContextualMenu(screenInstanceId);
-            }
-        });
-    }
 }

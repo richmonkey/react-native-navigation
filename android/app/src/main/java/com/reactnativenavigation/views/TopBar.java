@@ -4,12 +4,11 @@ import android.content.Context;
 import android.graphics.Color;
 import android.os.Build;
 import android.support.design.widget.AppBarLayout;
-import android.support.design.widget.TabLayout;
+
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
-import com.facebook.react.bridge.Callback;
-import com.reactnativenavigation.params.ContextualMenuParams;
+
 import com.reactnativenavigation.params.StyleParams;
 import com.reactnativenavigation.params.TitleBarButtonParams;
 import com.reactnativenavigation.params.TitleBarLeftButtonParams;
@@ -22,9 +21,8 @@ import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
 public class TopBar extends AppBarLayout {
     protected TitleBar titleBar;
-    private ContextualMenu contextualMenu;
     protected FrameLayout titleBarAndContextualMenuContainer;
-    protected TopTabs topTabs;
+
 
     public TopBar(Context context) {
         super(context);
@@ -72,7 +70,7 @@ public class TopBar extends AppBarLayout {
         }
         setVisibility(styleParams.topBarHidden ? GONE : VISIBLE);
         titleBar.setStyle(styleParams);
-        setTopTabsStyle(styleParams);
+
         if (!styleParams.topBarElevationShadowEnabled) {
             disableElevationShadow();
         }
@@ -93,58 +91,11 @@ public class TopBar extends AppBarLayout {
         titleBar.setRightButtons(titleBarButtons, navigatorEventId);
     }
 
-    public TabLayout initTabs() {
-        topTabs = new TopTabs(getContext());
-        addView(topTabs);
-        return topTabs;
-    }
-
     public void setTitleBarLeftButton(String navigatorEventId,
                                       LeftButtonOnClickListener leftButtonOnClickListener,
                                       TitleBarLeftButtonParams titleBarLeftButtonParams,
                                       boolean overrideBackPressInJs) {
         titleBar.setLeftButton(titleBarLeftButtonParams, leftButtonOnClickListener, navigatorEventId,
                 overrideBackPressInJs);
-    }
-
-    private void setTopTabsStyle(StyleParams style) {
-        if (topTabs == null) {
-            return;
-        }
-        topTabs.setTopTabsTextColor(style);
-        topTabs.setSelectedTabIndicatorStyle(style);
-    }
-
-    public void showContextualMenu(final ContextualMenuParams params, StyleParams styleParams, Callback onButtonClicked) {
-        final ContextualMenu menuToRemove = contextualMenu != null ? contextualMenu : null;
-        contextualMenu = new ContextualMenu(getContext(), params, styleParams, onButtonClicked);
-        titleBarAndContextualMenuContainer.addView(contextualMenu, new ViewGroup.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
-        ViewUtils.runOnPreDraw(contextualMenu, new Runnable() {
-            @Override
-            public void run() {
-                titleBar.hide();
-                contextualMenu.show(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (menuToRemove != null) {
-                           titleBarAndContextualMenuContainer.removeView(menuToRemove);
-                        }
-                    }
-                });
-            }
-        });
-    }
-
-    public void onContextualMenuHidden() {
-        contextualMenu = null;
-        titleBar.show();
-    }
-
-    public void dismissContextualMenu() {
-        if (contextualMenu != null) {
-            contextualMenu.dismiss();
-            contextualMenu = null;
-            titleBar.show();
-        }
     }
 }

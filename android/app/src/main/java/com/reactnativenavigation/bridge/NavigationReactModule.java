@@ -2,21 +2,14 @@ package com.reactnativenavigation.bridge;
 
 import android.os.Bundle;
 
-import com.facebook.react.bridge.Callback;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMap;
 import com.reactnativenavigation.controllers.NavigationCommandsHandler;
-import com.reactnativenavigation.params.ContextualMenuParams;
-import com.reactnativenavigation.params.FabParams;
-import com.reactnativenavigation.params.SnackbarParams;
 import com.reactnativenavigation.params.TitleBarButtonParams;
 import com.reactnativenavigation.params.TitleBarLeftButtonParams;
-import com.reactnativenavigation.params.parsers.ContextualMenuParamsParser;
-import com.reactnativenavigation.params.parsers.FabParamsParser;
-import com.reactnativenavigation.params.parsers.SnackbarParamsParser;
 import com.reactnativenavigation.params.parsers.TitleBarButtonParamsParser;
 import com.reactnativenavigation.params.parsers.TitleBarLeftButtonParamsParser;
 
@@ -159,16 +152,4 @@ public class NavigationReactModule extends ReactContextBaseJavaModule {
     }
 
 
-
-    @ReactMethod
-    public void showContextualMenu(final String screenInstanceId, final ReadableMap params, final Callback onButtonClicked) {
-        ContextualMenuParams contextualMenuParams =
-                new ContextualMenuParamsParser().parse(BundleConverter.toBundle(params));
-        NavigationCommandsHandler.showContextualMenu(screenInstanceId, contextualMenuParams, onButtonClicked);
-    }
-
-    @ReactMethod
-    public void dismissContextualMenu(String screenInstanceId) {
-        NavigationCommandsHandler.dismissContextualMenu(screenInstanceId);
-    }
 }

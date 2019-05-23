@@ -31,7 +31,6 @@ public class StyleParamsParser {
         if (result.topBarTransparent) {
             result.drawScreenBelowTopBar = false;
         }
-        result.collapsingTopBarParams = new CollapsingTopBarParamsParser(params, result.titleBarHideOnScroll, result.drawScreenBelowTopBar).parse();
         result.titleBarHidden = getBoolean("titleBarHidden", getDefaultTopBarHidden());
         result.topBarElevationShadowEnabled = getBoolean("topBarElevationShadowEnabled", getDefaultTopBarElevationShadowEnabled());
         result.titleBarTitleColor = getColor("titleBarTitleColor", getDefaultTitleBarColor());

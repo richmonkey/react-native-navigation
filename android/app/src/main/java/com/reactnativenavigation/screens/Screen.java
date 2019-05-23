@@ -8,17 +8,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Window;
 import android.widget.RelativeLayout;
 
-import com.facebook.react.bridge.Callback;
 import com.reactnativenavigation.animation.VisibilityAnimator;
-import com.reactnativenavigation.events.ContextualMenuHiddenEvent;
 import com.reactnativenavigation.events.Event;
 import com.reactnativenavigation.events.EventBus;
-import com.reactnativenavigation.events.FabSetEvent;
 import com.reactnativenavigation.events.Subscriber;
-import com.reactnativenavigation.events.ViewPagerScreenChangedEvent;
 import com.reactnativenavigation.params.BaseScreenParams;
-import com.reactnativenavigation.params.ContextualMenuParams;
-import com.reactnativenavigation.params.FabParams;
 import com.reactnativenavigation.params.ScreenParams;
 import com.reactnativenavigation.params.StyleParams;
 import com.reactnativenavigation.params.TitleBarButtonParams;
@@ -57,14 +51,7 @@ public abstract class Screen extends RelativeLayout implements Subscriber {
 
     @Override
     public void onEvent(Event event) {
-        if (ContextualMenuHiddenEvent.TYPE.equals(event.getType()) && isShown()) {
-            setStyle();
-            topBar.onContextualMenuHidden();
-        }
-        if (ViewPagerScreenChangedEvent.TYPE.equals(event.getType()) && isShown() ) {
-            setStyle();
-            topBar.dismissContextualMenu();
-        }
+
     }
 
     public void setStyle() {
@@ -117,6 +104,7 @@ public abstract class Screen extends RelativeLayout implements Subscriber {
     }
 
     private void createTopBarVisibilityAnimator() {
+
         ViewUtils.runOnPreDraw(topBar, new Runnable() {
             @Override
             public void run() {
@@ -192,13 +180,6 @@ public abstract class Screen extends RelativeLayout implements Subscriber {
                 screenParams.overrideBackPressInJs);
     }
 
-    public void setFab(FabParams fabParams) {
-        screenParams.fabParams = fabParams;
-        if (isShown()) {
-            EventBus.instance.post(new FabSetEvent(fabParams));
-        }
-    }
-
     public StyleParams getStyleParams() {
         return screenParams.styleParams;
     }
@@ -215,15 +196,6 @@ public abstract class Screen extends RelativeLayout implements Subscriber {
 
     public abstract void setOnDisplayListener(OnDisplayListener onContentViewDisplayedListener);
 
-
-    public void showContextualMenu(ContextualMenuParams params, Callback onButtonClicked) {
-        topBar.showContextualMenu(params, styleParams, onButtonClicked);
-        setStatusBarColor(styleParams.contextualMenuStatusBarColor);
-    }
-
-    public void dismissContextualMenu() {
-        topBar.dismissContextualMenu();
-    }
 
     public void destroy() {
         unmountReactView();

@@ -11,7 +11,7 @@ public class BaseScreenParams {
     public NavigationParams navigationParams;
     public List<TitleBarButtonParams> rightButtons;
     public TitleBarLeftButtonParams leftButton;
-    public FabParams fabParams;
+
 
     public boolean overrideBackPressInJs;
     public StyleParams styleParams;
@@ -34,11 +34,4 @@ public class BaseScreenParams {
         return navigationParams.navigatorEventId;
     }
 
-    public boolean hasCollapsingTopBar() {
-        return styleParams.collapsingTopBarParams != null;
-    }
-
-    public FabParams getFab() {
-        return fabParams;
-    }
 }

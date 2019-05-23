@@ -6,7 +6,6 @@ import com.facebook.react.bridge.Callback;
 import com.reactnativenavigation.NavigationApplication;
 import com.reactnativenavigation.events.EventBus;
 import com.reactnativenavigation.events.ScreenChangedEvent;
-import com.reactnativenavigation.params.ContextualMenuParams;
 import com.reactnativenavigation.params.ScreenParams;
 import com.reactnativenavigation.params.TitleBarButtonParams;
 import com.reactnativenavigation.params.TitleBarLeftButtonParams;
@@ -58,11 +57,7 @@ public class SingleScreenLayout extends RelativeLayout implements Layout {
 
 
     private void sendScreenChangedEventAfterInitialPush() {
-        if (screenParams.topTabParams != null) {
-            EventBus.instance.post(new ScreenChangedEvent(screenParams.topTabParams.get(0)));
-        } else {
-            EventBus.instance.post(new ScreenChangedEvent(screenParams));
-        }
+        EventBus.instance.post(new ScreenChangedEvent(screenParams));
     }
 
 
@@ -141,26 +136,6 @@ public class SingleScreenLayout extends RelativeLayout implements Layout {
         });
     }
 
-
-    @Override
-    public void showContextualMenu(String screenInstanceId, final ContextualMenuParams params, final Callback onButtonClicked) {
-        performOnScreen(screenInstanceId, new Task<Screen>() {
-            @Override
-            public void run(Screen screen) {
-                screen.showContextualMenu(params, onButtonClicked);
-            }
-        });
-    }
-
-    @Override
-    public void dismissContextualMenu(String screenInstanceId) {
-        performOnScreen(screenInstanceId, new Task<Screen>() {
-            @Override
-            public void run(Screen screen) {
-                screen.dismissContextualMenu();
-            }
-        });
-    }
 
     @Override
     public Screen getCurrentScreen() {

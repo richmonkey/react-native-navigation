@@ -18,10 +18,6 @@ import com.reactnativenavigation.layouts.Layout;
 import com.reactnativenavigation.layouts.LayoutFactory;
 import com.reactnativenavigation.params.ActivityParams;
 import com.reactnativenavigation.params.AppStyle;
-import com.reactnativenavigation.params.ContextualMenuParams;
-import com.reactnativenavigation.params.FabParams;
-import com.reactnativenavigation.params.ScreenParams;
-import com.reactnativenavigation.params.SnackbarParams;
 import com.reactnativenavigation.params.TitleBarButtonParams;
 import com.reactnativenavigation.params.TitleBarLeftButtonParams;
 import com.reactnativenavigation.react.JsDevReloadHandler;
@@ -61,7 +57,6 @@ public class NavigationActivity extends AppCompatActivity implements DefaultHard
 
         disableActivityShowAnimationIfNeeded();
         createLayout();
-
     }
 
     private void disableActivityShowAnimationIfNeeded() {
@@ -177,13 +172,6 @@ public class NavigationActivity extends AppCompatActivity implements DefaultHard
     }
 
 
-    public void showContextualMenu(String screenInstanceId, ContextualMenuParams params, Callback onButtonClicked) {
-        layout.showContextualMenu(screenInstanceId, params, onButtonClicked);
-    }
-
-    public void dismissContextualMenu(String screenInstanceId) {
-        layout.dismissContextualMenu(screenInstanceId);
-    }
 
 
     @TargetApi(Build.VERSION_CODES.M)
