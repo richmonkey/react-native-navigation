@@ -55,14 +55,7 @@ public class NavigationActivity extends AppCompatActivity implements DefaultHard
         NavigationCommandsHandler.registerNavigationActivity(this, activityParams.screenParams.navigationParams.navigatorId);
         NavigationCommandsHandler.registerActivity(this, activityParams.screenParams.navigationParams.screenInstanceId);
 
-        disableActivityShowAnimationIfNeeded();
         createLayout();
-    }
-
-    private void disableActivityShowAnimationIfNeeded() {
-        if (!activityParams.animateShow) {
-            overridePendingTransition(0, 0);
-        }
     }
 
 
@@ -170,8 +163,6 @@ public class NavigationActivity extends AppCompatActivity implements DefaultHard
     void setTitleBarLeftButton(String screenInstanceId, String navigatorEventId, TitleBarLeftButtonParams titleBarLeftButton) {
         layout.setTitleBarLeftButton(screenInstanceId, navigatorEventId, titleBarLeftButton);
     }
-
-
 
 
     @TargetApi(Build.VERSION_CODES.M)

@@ -78,7 +78,6 @@ function navigatorPush(navigator, params) {
     adaptNavigationStyleToScreenStyle(screen);
     adaptNavigationParams(screen);
     params.overrideBackPress = screen.overrideBackPress;
-    params.animateShow = convertAnimationType(params.animationType);
 
     console.log("params:", params, params.navigationParams);
     newPlatformSpecific.push(params);
@@ -174,10 +173,6 @@ function adaptNavigationParams(screen) {
   return screen;
 }
 
-
-function convertAnimationType(animationType) {
-  return animationType !== 'none';
-}
 
 function navigatorSetButtons(navigator, navigatorEventID, _params) {
   const params = _.cloneDeep(_params);
@@ -343,17 +338,6 @@ function addNavigationStyleParams(screen) {
   screen.navigatorStyle = Object.assign({}, screen.navigatorStyle, Screen.navigatorStyle);
 }
 
-function showSnackbar(navigator, params) {
-  
-}
-
-function showContextualMenu(navigator, params) {
-
-}
-
-function dismissContextualMenu() {
-
-}
 
 function registerNavigatorButtons(screenID, navigatorButtons) {
     //todo
@@ -371,8 +355,5 @@ export default {
   navigatorSetTitle,
   navigatorSetSubtitle,
   navigatorToggleNavBar,
-  showSnackbar,
-  showContextualMenu,
-  dismissContextualMenu,
   registerNavigatorButtons    
 };

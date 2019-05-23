@@ -243,13 +243,6 @@ function savePassProps(params) {
   }
 }
 
-function showContextualMenu() {
-  // Android only
-}
-
-function dismissContextualMenu() {
-  // Android only
-}
 
 function registerNavigatorButtons(screenID, navigatorButtons) {
     RCCManager.registerNavigatorButtons(screenID, navigatorButtons);
@@ -268,7 +261,5 @@ export default {
   navigatorSetTitle,
   navigatorSetTitleImage,
   navigatorToggleNavBar,
-  showContextualMenu,
-  dismissContextualMenu,
   registerNavigatorButtons    
 };

@@ -71,14 +71,6 @@ class Navigator {
     return platformSpecific.navigatorToggleNavBar(this, params);
   }
 
-  showContextualMenu(params, onButtonPressed) {
-    return platformSpecific.showContextualMenu(this, params, onButtonPressed);
-  }
-
-  dismissContextualMenu() {
-    return platformSpecific.dismissContextualMenu();
-  }
-
   setOnNavigatorEvent(callback) {
     this.navigatorEventHandler = callback;
     if (!this.navigatorEventSubscription) {
