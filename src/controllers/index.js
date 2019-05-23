@@ -3,7 +3,6 @@ var OriginalReactNative = require('react-native');
 var RCCManager = OriginalReactNative.NativeModules.RCCManager;
 var NativeAppEventEmitter = OriginalReactNative.NativeAppEventEmitter;
 var utils = require('./utils');
-var Constants = require('./Constants');
 var resolveAssetSource = require('react-native/Libraries/Image/resolveAssetSource');
 var processColor = OriginalReactNative.processColor;
 
@@ -18,9 +17,6 @@ function _processProperties(properties) {
       }
       if (property === 'color' || property.endsWith('Color')) {
         properties[property] = processColor(properties[property]);
-      }
-      if (property === 'buttons' || property.endsWith('Buttons')) {
-        _processButtons(properties[property]);
       }
     }
   }
@@ -156,8 +152,6 @@ var Controllers = {
       RCCManager.dismissAllControllers(animationType);
     }
   },
-
-  Constants: Constants
 };
 
 module.exports = Controllers;

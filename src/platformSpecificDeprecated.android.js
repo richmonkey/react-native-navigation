@@ -16,30 +16,6 @@ function savePassProps(params) {
     if (params.screen && params.screen.passProps) {
         PropRegistry.save(params.screen.navigationParams.screenInstanceID, params.screen.passProps);
     }
-
-    if (_.get(params, 'screen.topTabs')) {
-        _.forEach(params.screen.topTabs, (tab) => savePassProps(tab));
-    }
-
-    if (params.topTabs) {
-        _.forEach(params.topTabs, (tab) => savePassProps(tab));
-    }
-
-    if (params.tabs) {
-        _.forEach(params.tabs, (tab) => {
-            if (!tab.passProps) {
-                tab.passProps = params.passProps;
-            }
-            savePassProps(tab);
-        });
-    }
-
-    if (params.sideMenu && params.sideMenu.left) {
-        PropRegistry.save(params.sideMenu.left.navigationParams.screenInstanceID, params.sideMenu.left.passProps);
-    }
-    if (params.sideMenu && params.sideMenu.right) {
-        PropRegistry.save(params.sideMenu.right.navigationParams.screenInstanceID, params.sideMenu.right.passProps);
-    }
 }
 
 var newPlatformSpecific = {
@@ -84,24 +60,9 @@ var newPlatformSpecific = {
     dismissAllModals: function() {
         NativeReactModule.dismissAllModals();
     },
-
 };
 
 
-function adaptTopTabs(screen, navigatorID) {
-  screen.topTabs = _.cloneDeep(screen.topTabs);
-  _.forEach(_.get(screen, 'topTabs'), (tab) => {
-    addNavigatorParams(tab);
-    if (navigatorID) {
-      tab.navigatorID = navigatorID;
-    }
-    tab.screen = tab.screenId;
-    addNavigatorButtons(tab);
-    adaptNavigationParams(tab);
-    addNavigationStyleParams(tab);
-    tab = adaptNavigationStyleToScreenStyle(tab);
-  });
-}
 
 function navigatorPush(navigator, params) {
     var screen = params;
@@ -110,14 +71,9 @@ function navigatorPush(navigator, params) {
         return;
     }
     addNavigatorParams(screen, navigator);
-    addNavigatorButtons(screen, params.drawer);
+    addNavigatorButtons(screen);
     addTitleBarBackButtonIfNeeded(params);
     addNavigationStyleParams(screen);
-
-    /*
-     * adapt to new API
-     */
-    adaptTopTabs(screen, screen.navigatorID);
     screen.screenId = screen.screen;
     adaptNavigationStyleToScreenStyle(screen);
     adaptNavigationParams(screen);
@@ -125,10 +81,8 @@ function navigatorPush(navigator, params) {
     params.animateShow = convertAnimationType(params.animationType);
 
     console.log("params:", params, params.navigationParams);
-    
     newPlatformSpecific.push(params);
 }
-
 
 
 function navigatorPop(navigator, params) {
@@ -207,42 +161,9 @@ function convertStyleParams(originalStyleObject) {
 
     navigationBarColor: processColor(originalStyleObject.navigationBarColor)
   }
-
-  if (originalStyleObject.collapsingToolBarImage) {
-    if (_.isString(originalStyleObject.collapsingToolBarImage)) {
-      ret.collapsingToolBarImage = originalStyleObject.collapsingToolBarImage;
-    }
-
-    const collapsingToolBarImage = resolveAssetSource(originalStyleObject.collapsingToolBarImage)
-    if (collapsingToolBarImage) {
-      ret.collapsingToolBarImage = collapsingToolBarImage.uri;
-    }
-  }
   return ret;
 }
 
-function convertDrawerParamsToSideMenuParams(drawerParams) {
-  const drawer = Object.assign({}, drawerParams);
-
-  let result = {
-    left: {},
-    right: {}
-  };
-
-  Object.keys(result).forEach((key) => {
-    if (drawer[key] && drawer[key].screen) {
-      result[key].screenId = drawer[key].screen;
-      addNavigatorParams(result[key]);
-      result[key] = adaptNavigationParams(result[key]);
-      result[key].passProps = drawer[key].passProps;
-      result[key].disableOpenGesture = drawer.disableOpenGesture;
-    } else {
-      result[key] = null;
-    }
-  })
-
-  return result;
-}
 
 function adaptNavigationParams(screen) {
   screen.navigationParams = {
@@ -280,7 +201,7 @@ function navigatorSetButtons(navigator, navigatorEventID, _params) {
       }
     }
   }
-  const fab = getFab(params);
+  const fab = undefined
   newPlatformSpecific.setScreenButtons(navigator.screenInstanceID, navigatorEventID, params.rightButtons, leftButton, fab);
 }
 
@@ -307,18 +228,11 @@ function navigatorToggleNavBar(navigator, params) {
   );
 }
 
-
-
 function showModal(params) {
   addNavigatorParams(params);
   addNavigatorButtons(params);
   addTitleBarBackButtonIfNeeded(params);
   addNavigationStyleParams(params);
-
-  /*
-   * adapt to new API
-   */
-  adaptTopTabs(params, params.navigatorID);
   params.screenId = params.screen;
   let adapted = adaptNavigationStyleToScreenStyle(params);
   adapted = adaptNavigationParams(adapted);
@@ -341,7 +255,7 @@ function addNavigatorParams(screen, navigator = null, idx = '') {
   screen.navigatorEventID = screen.screenInstanceID + '_events';
 }
 
-function addNavigatorButtons(screen, sideMenuParams) {
+function addNavigatorButtons(screen) {
   const Screen = Navigation.getRegisteredScreen(screen.screen);
   screen.navigatorButtons = _.cloneDeep(Screen.navigatorButtons);
 
@@ -360,9 +274,6 @@ function addNavigatorButtons(screen, sideMenuParams) {
   }
 
   let leftButton = getLeftButton(screen);
-  if (sideMenuParams && !leftButton) {
-    leftButton = createSideMenuButton();
-  }
   if (leftButton) {
     if (leftButton.icon) {
       const icon = resolveAssetSource(leftButton.icon);
@@ -370,11 +281,6 @@ function addNavigatorButtons(screen, sideMenuParams) {
         leftButton.icon = icon.uri;
       }
     }
-  }
-
-  const fab = getFab(screen);
-  if (fab) {
-    screen.fab = fab;
   }
 
   if (rightButtons) {
@@ -385,48 +291,6 @@ function addNavigatorButtons(screen, sideMenuParams) {
   }
 }
 
-function getFab(screen) {
-  let fab = screen.fab;
-  if (screen.navigatorButtons && screen.navigatorButtons.fab) {
-    fab = screen.navigatorButtons.fab;
-  }
-  if (fab === null || fab === undefined) {
-    return;
-  }
-  if (Object.keys(fab).length === 0 ) {
-    return {};
-  }
-
-  const collapsedIconUri = resolveAssetSource(fab.collapsedIcon);
-  if (!collapsedIconUri) {
-    return;
-  }
-  fab.collapsedIcon = collapsedIconUri.uri;
-  if (fab.expendedIcon) {
-    const expendedIconUri = resolveAssetSource(fab.expendedIcon);
-    if (expendedIconUri) {
-      fab.expendedIcon = expendedIconUri.uri;
-    }
-  }
-  if (fab.backgroundColor) {
-    fab.backgroundColor = processColor(fab.backgroundColor);
-  }
-
-  if (fab.actions) {
-    _.forEach(fab.actions, (action) => {
-      action.icon = resolveAssetSource(action.icon).uri;
-      return action;
-    });
-  }
-
-  return fab;
-}
-
-function createSideMenuButton() {
-  return {
-    id: "sideMenu"
-  };
-}
 
 function addTitleBarBackButtonIfNeeded(screen) {
   const leftButton = getLeftButton(screen);
@@ -480,35 +344,15 @@ function addNavigationStyleParams(screen) {
 }
 
 function showSnackbar(navigator, params) {
-  return newPlatformSpecific.showSnackbar(params);
+  
 }
 
 function showContextualMenu(navigator, params) {
-  const contextualMenu = {
-    buttons: [],
-    backButton: {id: 'back'},
-    navigationParams: {navigatorEventID: navigator.navigatorEventID}
-  };
 
-  params.rightButtons.forEach((button, index) => {
-    const btn = {
-      icon: resolveAssetSource(button.icon),
-      showAsAction: button.showAsAction,
-      color: processColor(button.color),
-      label: button.title,
-      index
-    };
-    if (btn.icon) {
-      btn.icon = btn.icon.uri;
-    }
-    contextualMenu.buttons.push(btn);
-  });
-
-  newPlatformSpecific.showContextualMenu(navigator.screenInstanceID, contextualMenu, params.onButtonPressed);
 }
 
 function dismissContextualMenu() {
-  newPlatformSpecific.dismissContextualMenu();
+
 }
 
 function registerNavigatorButtons(screenID, navigatorButtons) {

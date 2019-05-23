@@ -241,19 +241,6 @@ function savePassProps(params) {
   if (params.screen && params.screen.passProps) {
     PropRegistry.save(params.screen.navigationParams.screenInstanceID, params.screen.passProps);
   }
-
-  if (_.get(params, 'screen.topTabs')) {
-    _.forEach(params.screen.topTabs, (tab) => savePassProps(tab));
-  }
-
-  if (params.tabs) {
-    _.forEach(params.tabs, (tab) => {
-      if (!tab.passProps) {
-        tab.passProps = params.passProps;
-      }
-      savePassProps(tab);
-    });
-  }
 }
 
 function showContextualMenu() {
