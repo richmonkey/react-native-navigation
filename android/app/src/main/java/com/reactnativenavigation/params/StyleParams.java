@@ -1,7 +1,7 @@
 package com.reactnativenavigation.params;
 
 import android.os.Bundle;
-import android.support.annotation.ColorInt;
+import androidx.annotation.ColorInt;
 
 public class StyleParams {
     public static class Color {

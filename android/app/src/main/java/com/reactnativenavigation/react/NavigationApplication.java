@@ -1,7 +1,7 @@
 package com.reactnativenavigation.react;
 
 import android.os.Handler;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 import com.facebook.react.ReactApplication;
 import com.facebook.react.ReactInstanceManager;

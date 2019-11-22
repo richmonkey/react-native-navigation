@@ -3,7 +3,7 @@ package com.reactnativenavigation.views;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Build;
-import android.support.design.widget.AppBarLayout;
+import com.google.android.material.appbar.AppBarLayout;
 
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
