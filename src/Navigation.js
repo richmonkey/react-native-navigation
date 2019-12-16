@@ -33,12 +33,11 @@ function _registerComponentNoRedux(screenID, generator) {
         }
       }
 
-      componentWillReceiveProps(nextProps) {
-        this.setState({
-          internalProps: {...PropRegistry.load(this.props.screenInstanceID), ...nextProps}
-        })
+      static getDerivedStateFromProps(nextProps, prevState) {
+         return {
+            internalProps: {...PropRegistry.load(nextProps.screenInstanceID), ...nextProps}
+         }
       }
-
       render() {
         return (
           <InternalComponent testID={screenID} navigator={this.navigator} {...this.state.internalProps} />
@@ -64,11 +63,11 @@ function _registerComponentRedux(screenID, generator, store, Provider) {
         }
       }
 
-      componentWillReceiveProps(nextProps) {
-        this.setState({
-          internalProps: {...PropRegistry.load(this.props.screenInstanceID), ...nextProps}
-        })
-      }
+      static getDerivedStateFromProps(nextProps, prevState) {
+          return {
+              internalProps: {...PropRegistry.load(nextProps.screenInstanceID), ...nextProps}
+          }
+      }        
 
       render() {
         return (
