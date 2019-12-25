@@ -1,85 +1,59 @@
 /*eslint-disable*/
-import Navigation from './Navigation';
-var OriginalReactNative = require('react-native');
-var RCCManager = OriginalReactNative.NativeModules.RCCManager;
-import Controllers, {Modal} from './controllers';
-const React = Controllers.hijackReact();
-const {
-  ControllerRegistry,
-  NavigationControllerIOS,
-} = React;
-import _ from 'lodash';
+import {NativeModules} from 'react-native';
+var RCCManager = NativeModules.RCCManager;
 
-import PropRegistry from './PropRegistry';
+var Controllers = {
+  NavigationControllerIOS: function (id) {
+    return {
+      push: function (params) {
+        RCCManager.NavigationControllerIOS(id, "push", params);
+      },
+      pop: function (params) {
+        RCCManager.NavigationControllerIOS(id, "pop", params);
+      },
+      popToRoot: function (params) {
+        RCCManager.NavigationControllerIOS(id, "popToRoot", params);
+      },
+      setTitle: function (params) {
+        RCCManager.NavigationControllerIOS(id, "setTitle", params);
+      },
+      setLeftButtons: function (buttons, animated = false) {
+        RCCManager.NavigationControllerIOS(id, "setButtons", {buttons: buttons, side: "left", animated: animated});
+      },
+      setRightButtons: function (buttons, animated = false) {
+        RCCManager.NavigationControllerIOS(id, "setButtons", {buttons: buttons, side: "right", animated: animated});
+      },
+      setHidden: function(params = {}) {
+        RCCManager.NavigationControllerIOS(id, "setHidden", params);
+      }
+    };
+  },
 
-function _mergeScreenSpecificSettings(screenID, screenInstanceID, params) {
-  const screenClass = Navigation.getRegisteredScreen(screenID);
-  if (!screenClass) {
-    console.error('Cannot create screen ' + screenID + '. Are you it was registered with Navigation.registerScreen?');
-    return;
-  }
-  const navigatorStyle = Object.assign({}, screenClass.navigatorStyle);
-  if (params.navigatorStyle) {
-    Object.assign(navigatorStyle, params.navigatorStyle);
-  }
+  Modal: {
+    showLightBox: function(params) {
+      RCCManager.modalShowLightBox(params);
+    },
+    dismissLightBox: function() {
+      RCCManager.modalDismissLightBox();
+    },
 
-  let navigatorEventID = screenInstanceID + '_events';
-  let navigatorButtons = _.cloneDeep(screenClass.navigatorButtons);
-  if (params.navigatorButtons) {
-    navigatorButtons = _.cloneDeep(params.navigatorButtons);
-  }
-  if (navigatorButtons.leftButtons) {
-    for (let i = 0; i < navigatorButtons.leftButtons.length; i++) {
-      navigatorButtons.leftButtons[i].onPress = navigatorEventID;
+    showController: function(layout, animationType = 'slide-up', passProps = {}) {
+      RCCManager.showController(layout, animationType, passProps);
+    },
+
+    dismissController: function(animationType = 'slide-down') {
+      RCCManager.dismissController(animationType);
+    },
+    dismissAllControllers: function(animationType = 'slide-down') {
+      RCCManager.dismissAllControllers(animationType);
     }
-  }
-  if (navigatorButtons.rightButtons) {
-    for (let i = 0; i < navigatorButtons.rightButtons.length; i++) {
-      navigatorButtons.rightButtons[i].onPress = navigatorEventID;
-    }
-  }
-  return {navigatorStyle, navigatorButtons, navigatorEventID};
-}
+  },
+};
+
+const Modal = Controllers.Modal;
 
 function navigatorPush(navigator, params) {
-  if (!params.screen) {
-    console.error('Navigator.push(params): params.screen is required');
-    return;
-  }
-  const screenInstanceID = _.uniqueId('screenInstanceID');
-  const {
-    navigatorStyle,
-    navigatorButtons,
-    navigatorEventID
-  } = _mergeScreenSpecificSettings(params.screen, screenInstanceID, params);
-  const passProps = Object.assign({}, params.passProps);
-  passProps.navigatorID = navigator.navigatorID;
-  passProps.screenInstanceID = screenInstanceID;
-  passProps.navigatorEventID = navigatorEventID;
-
-  params.navigationParams = {
-    screenInstanceID,
-    navigatorStyle,
-    navigatorButtons,
-    navigatorEventID,
-    navigatorID: navigator.navigatorID
-  };
-
-  savePassProps(params);
-
-  Controllers.NavigationControllerIOS(navigator.navigatorID).push({
-    title: params.title,
-    subtitle: params.subtitle,
-    titleImage: params.titleImage,
-    component: params.screen,
-    animated: params.animated,
-    passProps: passProps,
-    style: navigatorStyle,
-    backButtonTitle: params.backButtonTitle,
-    backButtonHidden: params.backButtonHidden,
-    leftButtons: navigatorButtons.leftButtons,
-    rightButtons: navigatorButtons.rightButtons
-  });
+  Controllers.NavigationControllerIOS(navigator.navigatorID).push(params);
 }
 
 function navigatorPop(navigator, params) {
@@ -101,7 +75,7 @@ function navigatorSetTitle(navigator, params) {
     title: params.title,
     subtitle: params.subtitle,
     titleImage: params.titleImage,
-    style: params.navigatorStyle
+    style: params.style
   });
 }
 
@@ -135,53 +109,12 @@ function navigatorSetButtons(navigator, navigatorEventID, params) {
   }
 }
 
+
 function showModal(params) {
-  if (!params.screen) {
-    console.error('showModal(params): params.screen is required');
-    return;
-  }
-  const controllerID = _.uniqueId('controllerID');
-  const navigatorID = controllerID + '_nav';
-  const screenInstanceID = _.uniqueId('screenInstanceID');
-  const {
-    navigatorStyle,
-    navigatorButtons,
-    navigatorEventID
-  } = _mergeScreenSpecificSettings(params.screen, screenInstanceID, params);
-  const passProps = Object.assign({}, params.passProps);
-  passProps.navigatorID = navigatorID;
-  passProps.screenInstanceID = screenInstanceID;
-  passProps.navigatorEventID = navigatorEventID;
-
-  params.navigationParams = {
-    screenInstanceID,
-    navigatorStyle,
-    navigatorButtons,
-    navigatorEventID,
-    navigatorID: navigator.navigatorID
-  };
-
-  const Controller = Controllers.createClass({
-    render: function() {
-      return (
-        <NavigationControllerIOS
-          id={navigatorID}
-          title={params.title}
-          subtitle={params.subtitle}
-          titleImage={params.titleImage}
-          component={params.screen}
-          passProps={passProps}
-          style={navigatorStyle}
-          leftButtons={navigatorButtons.leftButtons}
-          rightButtons={navigatorButtons.rightButtons}/>
-      );
-    }
-  });
-
-  savePassProps(params);
-
-  ControllerRegistry.registerController(controllerID, () => Controller);
-  Modal.showController(controllerID, params.animationType);
+  //ViewControllerIOS||NavigationControllerIOS
+  var layout = {type:"NavigationControllerIOS", props:params};
+  console.log("show modal layout:", layout);
+  Modal.showController(layout, params.animationType);
 }
 
 function dismissModal(params) {
@@ -193,60 +126,13 @@ function dismissAllModals(params) {
 }
 
 function showLightBox(params) {
-  if (!params.screen) {
-    console.error('showLightBox(params): params.screen is required');
-    return;
-  }
-  const controllerID = _.uniqueId('controllerID');
-  const navigatorID = controllerID + '_nav';
-  const screenInstanceID = _.uniqueId('screenInstanceID');
-  const {
-    navigatorStyle,
-    navigatorButtons,
-    navigatorEventID
-  } = _mergeScreenSpecificSettings(params.screen, screenInstanceID, params);
-  const passProps = Object.assign({}, params.passProps);
-  passProps.navigatorID = navigatorID;
-  passProps.screenInstanceID = screenInstanceID;
-  passProps.navigatorEventID = navigatorEventID;
-
-  params.navigationParams = {
-    screenInstanceID,
-    navigatorStyle,
-    navigatorButtons,
-    navigatorEventID,
-    navigatorID
-  };
-
-  savePassProps(params);
-
-  Modal.showLightBox({
-    component: params.screen,
-    passProps: passProps,
-    style: params.style
-  });
+  Modal.showLightBox(params);
 }
 
 function dismissLightBox(params) {
   Modal.dismissLightBox();
 }
 
-function savePassProps(params) {
-  //TODO this needs to be handled in a common place,
-  //TODO also, all global passProps should be handled differently
-  if (params.navigationParams && params.passProps) {
-    PropRegistry.save(params.navigationParams.screenInstanceID, params.passProps);
-  }
-
-  if (params.screen && params.screen.passProps) {
-    PropRegistry.save(params.screen.navigationParams.screenInstanceID, params.screen.passProps);
-  }
-}
-
-
-function registerNavigatorButtons(screenID, navigatorButtons) {
-    RCCManager.registerNavigatorButtons(screenID, navigatorButtons);
-}
 
 export default {
   navigatorPush,
@@ -261,5 +147,4 @@ export default {
   navigatorSetTitle,
   navigatorSetTitleImage,
   navigatorToggleNavBar,
-  registerNavigatorButtons    
 };

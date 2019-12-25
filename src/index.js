@@ -1,47 +1,42 @@
-import nav from './Navigation';
-
-import platformSpecific from './platformSpecificDeprecated';
+import ComponentRegistry  from './ComponentRegistry';
+import Navigator from './Navigator';
 
 function push(navigatorID, params = {}) {
-    var navigator = {
-        navigatorID:navigatorID,
-        navigatorEventID:"",
-        screenInstanceID:"",
-    };
-    platformSpecific.navigatorPush(navigator, params);
+    var navigator = new Navigator(navigatorID, "", "");
+    navigator.push(params);
 }
 
 function showModal(params = {}) {
-    return platformSpecific.showModal(params);
+    var navigator = new Navigator("", "", "");
+    return navigator.showModal(params);
 }
 
 function dismissModal(params = {}) {
-    return platformSpecific.dismissModal(params);
+    var navigator = new Navigator("", "", "");
+    return navigator.dismissModal(params);
 }
 
 function dismissAllModals(params = {}) {
-    return platformSpecific.dismissAllModals(params);
+    var navigator = new Navigator("", "", "");
+    return navigator.dismissAllModals(params);
 }
 
 function showLightBox(params = {}) {
-    return platformSpecific.showLightBox(params);
+    var navigator = new Navigator("", "", "");
+    return navigator.showLightBox(params);
 }
 
 function dismissLightBox(params = {}) {
-    return platformSpecific.dismissLightBox(params);
+    var navigator = new Navigator("", "", "");
+    return navigator.dismissLightBox(params);
 }
 
 function registerComponent(screenID, generator, store = undefined, provider = undefined) {
-    const com = generator();
-    const buttons = com.navigatorButtons;
-    if (buttons) {
-        platformSpecific.registerNavigatorButtons(screenID, buttons);
-    }
-    nav.registerComponent(screenID, generator, store, provider);
+    ComponentRegistry.registerComponent(screenID, generator, store, provider);
 }
 
 var Navigation = {
-    getRegisteredScreen:nav.getRegisteredScreen,
+    getRegisteredScreen:ComponentRegistry.getRegisteredScreen,
     registerComponent:registerComponent,
     push:push,
     showModal: showModal,
