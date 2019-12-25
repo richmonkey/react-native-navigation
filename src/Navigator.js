@@ -18,10 +18,14 @@ function _processProperties(properties) {
     for (var property in properties) {
         if (properties.hasOwnProperty(property)) {
             if (property === 'icon' || property.endsWith('Icon') || property.endsWith('Image')) {
-                properties[property] = resolveAssetSource(properties[property]);
+                if (properties[property]) {
+                    properties[property] = resolveAssetSource(properties[property]);
+                }
             }
             if (property === 'color' || property.endsWith('Color')) {
-                properties[property] = processColor(properties[property]);
+                if (properties[properties]) {
+                    properties[property] = processColor(properties[property]);
+                }
             }
         }
     }
