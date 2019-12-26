@@ -23,7 +23,7 @@ function _processProperties(properties) {
                 }
             }
             if (property === 'color' || property.endsWith('Color')) {
-                if (properties[properties]) {
+                if (properties[property]) {
                     properties[property] = processColor(properties[property]);
                 }
             }
