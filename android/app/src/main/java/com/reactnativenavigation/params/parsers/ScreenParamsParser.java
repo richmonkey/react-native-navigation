@@ -50,7 +50,11 @@ public class ScreenParamsParser extends Parser {
         if (passProps != null) {
             Set<String> keys = passProps.keySet();
             for (String k : keys) {
-                Parcelable[] v = passProps.getParcelableArray(k);
+                Parcelable[] v = null;
+                Object o = passProps.get(k);
+                if (o instanceof Parcelable[]) {
+                    v = (Parcelable[])o;
+                }
                 if (v != null) {
                     Bundle[] bundles = new Bundle[v.length];
                     int i;
