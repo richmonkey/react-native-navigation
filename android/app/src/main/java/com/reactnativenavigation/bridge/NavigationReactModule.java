@@ -100,8 +100,8 @@ public class NavigationReactModule extends ReactContextBaseJavaModule {
         if (params.hasKey("navigatorID")) {
             navigatorID = params.getString("navigatorID");
         }
-        if (params.hasKey("screen")) {
-            screen = params.getString("screen");
+        if (params.hasKey("component")) {
+            screen = params.getString("component");
         }
         Bundle bundle = BundleConverter.toBundle(params);
         if (params.hasKey("passProps")) {
