@@ -126,10 +126,20 @@ modalDismissLightBox)
     NSString *type = layout[@"type"];
     if (!type) return nil;
     
+    NSString *component = props[@"component"];
+    if (!component) return nil;
+    
     // regular view controller
     if ([type isEqualToString:@"ViewControllerIOS"])
     {
-        controller = [[RCCViewController alloc] initWithProps:props globalProps:globalProps bridge:bridge];
+        NSDictionary *passProps = props[@"passProps"];
+        NSDictionary *navigatorStyle = props[@"style"];
+        Class cls = [[RCCManager sharedIntance] getComponent:component];
+        if (cls) {
+            controller = [[cls alloc] initWithComponent:component passProps:passProps navigatorStyle:navigatorStyle globalProps:globalProps bridge:bridge];
+        } else {
+            controller = [[RCCViewController alloc] initWithProps:props globalProps:globalProps bridge:bridge];
+        }
     }
     
     // navigation controller
