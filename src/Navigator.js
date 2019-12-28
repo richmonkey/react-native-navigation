@@ -103,7 +103,7 @@ function navigatorPush(navigator, params) {
     passProps.screenInstanceID = screenInstanceID;
     passProps.navigatorEventID = navigatorEventID;
     params.passProps = passProps;
-    
+
     params.navigationParams = {
         screenInstanceID,
         navigatorEventID,
@@ -185,6 +185,7 @@ function showModal(params) {
       leftButtons:navigatorButtons.leftButtons,
       rightButtons:navigatorButtons.rightButtons,
       animationType:params.animationType,
+      hideNavigationBar:params.hideNavigationBar,
     };
 
     params = props;

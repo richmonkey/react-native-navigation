@@ -112,7 +112,11 @@ function navigatorSetButtons(navigator, navigatorEventID, params) {
 
 function showModal(params) {
   //ViewControllerIOS||NavigationControllerIOS
-  var layout = {type:"NavigationControllerIOS", props:params};
+  if (!params.hideNavigationBar) {
+    layout = {type:"NavigationControllerIOS", props:params};
+  } else {
+    layout = {type:"ViewControllerIOS", props:params};
+  }
   console.log("show modal layout:", layout);
   Modal.showController(layout, params.animationType);
 }
