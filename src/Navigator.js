@@ -98,11 +98,12 @@ function navigatorPush(navigator, params) {
         navigatorButtons,
         navigatorEventID
     } = _mergeScreenSpecificSettings(params.screen, screenInstanceID, params);
-    const passProps = Object.assign({}, params.passProps);
+    const passProps = _.cloneDeep(params.passProps);
     passProps.navigatorID = navigator.navigatorID;
     passProps.screenInstanceID = screenInstanceID;
     passProps.navigatorEventID = navigatorEventID;
-
+    params.passProps = passProps;
+    
     params.navigationParams = {
         screenInstanceID,
         navigatorEventID,
