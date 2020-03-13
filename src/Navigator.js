@@ -47,6 +47,9 @@ function _processButtons(buttons) {
         buttons[i] = Object.assign({}, buttons[i]);
         var button = buttons[i];
         _processProperties(button);
+        if (button.title && typeof(button.title) == "function") {
+            button.title = button.title();
+        }
     }
 }
 
