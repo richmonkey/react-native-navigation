@@ -5,11 +5,11 @@
 #import "RCCManager.h"
 #import <React/RCTConvert.h>
 
-NSString* const RCCViewControllerCancelReactTouchesNotification = @"RCCViewControllerCancelReactTouchesNotification";
-
 const NSInteger BLUR_STATUS_TAG = 78264801;
 const NSInteger BLUR_NAVBAR_TAG = 78264802;
 const NSInteger TRANSPARENT_NAVBAR_TAG = 78264803;
+
+static volatile int64_t _id = 0;
 
 @interface RCCViewController() <UIGestureRecognizerDelegate>
 @property (nonatomic) BOOL _hidesBottomBarWhenPushed;
@@ -24,9 +24,19 @@ const NSInteger TRANSPARENT_NAVBAR_TAG = 78264803;
 @property(nonatomic) RCTBridge *bridge;
 @property(nonatomic, copy) NSString *component;
 
+@property(nonatomic, copy) NSString *componentID;
+
 @end
 
 @implementation RCCViewController
+
++(NSString*)uniqueId:(NSString*)prefix {
+    //todo atomic int
+    @synchronized(self) {
+        int64_t newId = ++_id;
+        return [NSString stringWithFormat:@"%@%lld", prefix ? prefix : @"", newId];
+    }
+}
 
 -(UIImageView *)navBarHairlineImageView {
     if (!_navBarHairlineImageView) {
@@ -35,48 +45,37 @@ const NSInteger TRANSPARENT_NAVBAR_TAG = 78264803;
     return _navBarHairlineImageView;
 }
 
-- (instancetype)initWithProps:(NSDictionary *)props globalProps:(NSDictionary *)globalProps bridge:(RCTBridge *)bridge
+
+- (instancetype)initWithComponent:(NSString *)component passProps:(NSDictionary *)passProps navigatorStyle:(NSDictionary*)navigatorStyle bridge:(RCTBridge *)bridge
 {
-    NSString *component = props[@"component"];
-    if (!component) return nil;
-    
-    NSDictionary *passProps = props[@"passProps"];
-    NSDictionary *navigatorStyle = props[@"style"];
-    
-    NSMutableDictionary *mergedProps = [NSMutableDictionary dictionaryWithDictionary:globalProps];
-    [mergedProps addEntriesFromDictionary:passProps];
-
-    
-    self = [super init];
-
-    if (self) {
-        self.props = mergedProps;
-        self.bridge = bridge;
-        self.component = component;
-        self.navigatorStyle = [NSMutableDictionary dictionaryWithDictionary:navigatorStyle];
-        [self setStyleOnInit];
-    }
-    
-    return self;
-}
-
-- (instancetype)initWithComponent:(NSString *)component passProps:(NSDictionary *)passProps navigatorStyle:(NSDictionary*)navigatorStyle globalProps:(NSDictionary *)globalProps bridge:(RCTBridge *)bridge
-{
-    NSMutableDictionary *mergedProps = [NSMutableDictionary dictionaryWithDictionary:globalProps];
-    [mergedProps addEntriesFromDictionary:passProps];
-    
     self = [super init];
     if (self) {
-        self.props = mergedProps;
+        self.props = [NSMutableDictionary dictionaryWithDictionary:passProps];
         self.bridge = bridge;
         self.component = component;
+
         self.navigatorStyle = [NSMutableDictionary dictionaryWithDictionary:navigatorStyle];
         [self setStyleOnInit];
+        
+        NSString *componentID = [self.props objectForKey:@"screenInstanceID"];
+        if (componentID.length > 0) {
+            self.componentID = componentID;
+             [[RCCManager sharedInstance] registerController:self componentId:self.componentID componentType:@"ViewControllerIOS"];
+        }
     }
 
 
     return self;
 }
+
+- (void)dealloc
+{
+    self.view = nil;
+    if (self.componentID.length > 0) {
+        [[RCCManager sharedInstance] unregisterController:self];
+    }
+}
+
 
 
 - (void)loadView
@@ -91,25 +90,10 @@ const NSInteger TRANSPARENT_NAVBAR_TAG = 78264803;
     
     self.edgesForExtendedLayout = UIRectEdgeNone; // default
     self.automaticallyAdjustsScrollViewInsets = NO; // default
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onCancelReactTouches) name:RCCViewControllerCancelReactTouchesNotification object:nil];
 }
 
 
 
-- (void)dealloc
-{
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
-    self.view = nil;
-}
-
-
--(void)onCancelReactTouches
-{
-    if ([self.view isKindOfClass:[RCTRootView class]]){
-        [(RCTRootView*)self.view cancelTouches];
-    }
-}
 
 - (void)viewWillAppear:(BOOL)animated
 {

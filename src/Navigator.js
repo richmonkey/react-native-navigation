@@ -8,50 +8,11 @@ import PropRegistry from './PropRegistry';
 import ComponentRegistry from './ComponentRegistry';
 import _ from 'lodash';
 import platformSpecific from './platformSpecificDeprecated';
+import {processButtons as _processButtons, processProperties as _processProperties} from './util';
 var resolveAssetSource = require('react-native/Libraries/Image/resolveAssetSource');
 
 const _allNavigatorEventHandlers = {};
 
-
-
-function _processProperties(properties) {
-    for (var property in properties) {
-        if (properties.hasOwnProperty(property)) {
-            if (property === 'icon' || property.endsWith('Icon') || property.endsWith('Image')) {
-                if (properties[property]) {
-                    properties[property] = resolveAssetSource(properties[property]);
-                }
-            }
-            if (property === 'color' || property.endsWith('Color')) {
-                if (properties[property]) {
-                    properties[property] = processColor(properties[property]);
-                }
-            }
-        }
-    }
-}
-
-
-function _processButtons(buttons) {
-    //todo test
-    // params.rightButtons.forEach(function(button) {
-    //     button.enabled = !button.disabled;
-    //     if (button.icon) {
-    //       const icon = resolveAssetSource(button.icon);
-    //       if (icon) {
-    //         button.icon = icon.uri;
-    //       }
-    //     }
-    if (!buttons) return;
-    for (var i = 0 ; i < buttons.length ; i++) {
-        buttons[i] = Object.assign({}, buttons[i]);
-        var button = buttons[i];
-        _processProperties(button);
-        if (button.title && typeof(button.title) == "function") {
-            button.title = button.title();
-        }
-    }
-}
 
 
 function savePassProps(params) {
@@ -328,7 +289,11 @@ export default class Navigator {
     toggleNavBar(params = {}) {
       return platformSpecific.navigatorToggleNavBar(this, params);
     }
-  
+
+    setResult(result) {
+        return platformSpecific.setScreenResult(this.screenInstanceID, result);
+    }
+    
     setOnNavigatorEvent(callback) {
       this.navigatorEventHandler = callback;
       if (!this.navigatorEventSubscription) {

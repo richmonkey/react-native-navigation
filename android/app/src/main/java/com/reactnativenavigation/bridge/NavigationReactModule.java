@@ -41,6 +41,19 @@ public class NavigationReactModule extends ReactContextBaseJavaModule {
 
 
     @ReactMethod
+    public void registerNavigatorButtons(String screenId, ReadableArray rightButtonsParams, ReadableMap leftButtonParams) {
+        Bundle rightButtons = null;
+        if (rightButtonsParams != null) {
+            rightButtons = BundleConverter.toBundle(rightButtonsParams);
+        }
+        Bundle leftButton = null;
+        if (leftButtonParams != null) {
+            leftButton = BundleConverter.toBundle(leftButtonParams);
+        }
+        NavigationCommandsHandler.registerNavigatorButtons(screenId, rightButtons, leftButton);
+    }
+
+    @ReactMethod
     public void setScreenTitleBarTitle(String screenInstanceId, String title) {
         NavigationCommandsHandler.setScreenTitleBarTitle(screenInstanceId, title);
     }
@@ -82,6 +95,13 @@ public class NavigationReactModule extends ReactContextBaseJavaModule {
     public void setTopBarVisible(String screenInstanceId, boolean hidden, boolean animated) {
         NavigationCommandsHandler.setTopBarVisible(screenInstanceId, hidden, animated);
     }
+
+    @ReactMethod
+    public void setScreenResult(String screenInstanceId, ReadableMap res) {
+        Bundle bundle = BundleConverter.toBundle(res);
+        NavigationCommandsHandler.setScreenResult(screenInstanceId, bundle);
+    }
+
 
     @ReactMethod
     public void push(final ReadableMap params) {

@@ -27,6 +27,8 @@ public class NavigationCommandsHandler {
         return ActivityParamsParser.parse(intent.getBundleExtra(NavigationCommandsHandler.ACTIVITY_PARAMS_BUNDLE));
     }
 
+    private static HashMap<String, Bundle[]> navigatorButtons = new HashMap<>();
+
     private static HashMap<String, Class<?>> activitieClasses = new HashMap<>();
     private static HashMap<String, Activity> activities = new HashMap<>();
 
@@ -73,6 +75,13 @@ public class NavigationCommandsHandler {
         if (activities.containsKey(id)) {
             activities.remove(id);
         }
+    }
+
+    public static void registerNavigatorButtons(String componentId,  Bundle rightButtons, Bundle leftButton) {
+        Bundle[] a = new Bundle[2];
+        a[0] = leftButton;
+        a[1] = rightButtons;
+        navigatorButtons.put(componentId, a);
     }
 
     public static void registerActivityClass(Class<?> cls, String id) {
@@ -280,5 +289,21 @@ public class NavigationCommandsHandler {
         });
     }
 
+    public static void setScreenResult(final String screenInstanceId,
+                                       final Bundle result) {
+        final NavigationActivity currentActivity = NavigationActivity.currentActivity;
+        if (currentActivity == null) {
+            return;
+        }
+
+        NavigationApplication.instance.runOnMainThread(new Runnable() {
+            @Override
+            public void run() {
+                Intent intent = new Intent();
+                intent.putExtras(result);
+                currentActivity.setResult(Activity.RESULT_OK, intent);
+            }
+        });
+    }
 
 }

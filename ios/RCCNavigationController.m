@@ -19,6 +19,13 @@ NSString const *CALLBACK_ASSOCIATED_ID = @"RCCNavigationController.CALLBACK_ASSO
         self.componentID = id;
         self.delegate = self;
         self.navigationBar.translucent = NO; // default
+        
+        
+        if (self.componentID.length > 0)
+        {
+            [[RCCManager sharedInstance] registerController:self componentId:self.componentID componentType:@"NavigationControllerIOS"];
+        }
+        
     }
     return self;
 }
@@ -35,9 +42,9 @@ NSString const *CALLBACK_ASSOCIATED_ID = @"RCCNavigationController.CALLBACK_ASSO
     
     Class cls = [[RCCManager sharedIntance] getComponent:component];
     if (cls) {
-        viewController = [[cls alloc] initWithComponent:component passProps:passProps navigatorStyle:navigatorStyle globalProps:globalProps bridge:bridge];
+        viewController = [[cls alloc] initWithComponent:component passProps:passProps navigatorStyle:navigatorStyle bridge:bridge];
     } else {
-        viewController = [[RCCViewController alloc] initWithComponent:component passProps:passProps navigatorStyle:navigatorStyle globalProps:globalProps bridge:bridge];
+        viewController = [[RCCViewController alloc] initWithComponent:component passProps:passProps navigatorStyle:navigatorStyle bridge:bridge];
     }
     
     if (!viewController) return nil;
@@ -64,9 +71,24 @@ NSString const *CALLBACK_ASSOCIATED_ID = @"RCCNavigationController.CALLBACK_ASSO
                      props:props
                      style:navigatorStyle];
     
+    
+    // register the controller if we have an id
+     NSString *componentId = props[@"id"];
+     if (componentId.length > 0)
+     {
+         self.componentID = componentId;
+         [[RCCManager sharedInstance] registerController:self componentId:self.componentID componentType:@"NavigationControllerIOS"];
+     }
+    
+    
     return self;
 }
 
+-(void)dealloc {
+    if (self.componentID.length > 0) {
+        [[RCCManager sharedInstance] unregisterController:self];
+    }
+}
 
 - (void)performAction:(NSString*)performAction actionParams:(NSDictionary*)actionParams bridge:(RCTBridge *)bridge
 {
@@ -107,9 +129,9 @@ NSString const *CALLBACK_ASSOCIATED_ID = @"RCCNavigationController.CALLBACK_ASSO
         
         Class cls = [[RCCManager sharedIntance] getComponent:component];
         if (cls) {
-            viewController = [[cls alloc] initWithComponent:component passProps:passProps navigatorStyle:navigatorStyle globalProps:nil bridge:bridge];
+            viewController = [[cls alloc] initWithComponent:component passProps:passProps navigatorStyle:navigatorStyle bridge:bridge];
         } else {
-            viewController = [[RCCViewController alloc] initWithComponent:component passProps:passProps navigatorStyle:navigatorStyle globalProps:nil bridge:bridge];
+            viewController = [[RCCViewController alloc] initWithComponent:component passProps:passProps navigatorStyle:navigatorStyle bridge:bridge];
         }
         
         [self processTitleView:viewController
@@ -177,7 +199,7 @@ NSString const *CALLBACK_ASSOCIATED_ID = @"RCCNavigationController.CALLBACK_ASSO
         NSDictionary *passProps = actionParams[@"passProps"];
         NSDictionary *navigatorStyle = actionParams[@"style"];
         
-        RCCViewController *viewController = [[RCCViewController alloc] initWithComponent:component passProps:passProps navigatorStyle:navigatorStyle globalProps:nil bridge:bridge];
+        RCCViewController *viewController = [[RCCViewController alloc] initWithComponent:component passProps:passProps navigatorStyle:navigatorStyle bridge:bridge];
         
         [self processTitleView:viewController
                          props:actionParams
@@ -227,7 +249,6 @@ NSString const *CALLBACK_ASSOCIATED_ID = @"RCCNavigationController.CALLBACK_ASSO
         BOOL animatedBool = animated ? [animated boolValue] : YES;
         
         NSNumber *setHidden = actionParams[@"hidden"];
-        BOOL isHiddenBool = setHidden ? [setHidden boolValue] : NO;
         
         RCCViewController *topViewController = ((RCCViewController*)self.topViewController);
         topViewController.navigatorStyle[@"navBarHidden"] = setHidden;

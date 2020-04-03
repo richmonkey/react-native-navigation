@@ -137,18 +137,27 @@ function dismissLightBox(params) {
   Modal.dismissLightBox();
 }
 
+function registerNavigatorButtons(screenID, navigatorButtons) {
+    RCCManager.registerNavigatorButtons(screenID, navigatorButtons)
+}
+
+function setScreenResult(screenInstanceID, result) {
+    RCCManager.setResult(screenInstanceID, result);
+}
 
 export default {
-  navigatorPush,
-  navigatorPop,
-  navigatorPopToRoot,
-  showModal,
-  dismissModal,
-  dismissAllModals,
-  showLightBox,
-  dismissLightBox,
-  navigatorSetButtons,
-  navigatorSetTitle,
-  navigatorSetTitleImage,
-  navigatorToggleNavBar,
+    registerNavigatorButtons,
+    navigatorPush,
+    navigatorPop,
+    navigatorPopToRoot,
+    showModal,
+    dismissModal,
+    dismissAllModals,
+    showLightBox,
+    dismissLightBox,
+    navigatorSetButtons,
+    navigatorSetTitle,
+    navigatorSetTitleImage,
+    navigatorToggleNavBar,
+    setScreenResult,
 };

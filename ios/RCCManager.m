@@ -15,34 +15,34 @@
 
 + (instancetype)sharedInstance
 {
-  static RCCManager *sharedInstance = nil;
-  static dispatch_once_t onceToken = 0;
-
-  dispatch_once(&onceToken,^{
-    if (sharedInstance == nil)
-    {
-      sharedInstance = [[RCCManager alloc] init];
-    }
-  });
-
-  return sharedInstance;
+    static RCCManager *sharedInstance = nil;
+    static dispatch_once_t onceToken = 0;
+    
+    dispatch_once(&onceToken,^{
+        if (sharedInstance == nil)
+        {
+            sharedInstance = [[RCCManager alloc] init];
+        }
+    });
+    
+    return sharedInstance;
 }
 
 + (instancetype)sharedIntance
 {
-  return [RCCManager sharedInstance];
+    return [RCCManager sharedInstance];
 }
 
 - (instancetype)init
 {
-  self = [super init];
-  if (self)
-  {
-    self.modulesRegistry = [@{} mutableCopy];
-    self.components = [NSMutableDictionary dictionary];
-    self.componensNavigatorButton = [NSMutableDictionary dictionary];
-  }
-  return self;
+    self = [super init];
+    if (self)
+    {
+        self.modulesRegistry = [@{} mutableCopy];
+        self.components = [NSMutableDictionary dictionary];
+        self.componensNavigatorButton = [NSMutableDictionary dictionary];
+    }
+    return self;
 }
 
 -(void)registerComponent:(NSString*)component class:(Class)cls {
@@ -54,110 +54,107 @@
 }
 
 -(void)registerComponentNavigatorButtons:(NSString*)component navigatorButtons:(NSDictionary*)buttons {
-  [self.componensNavigatorButton setObject:buttons forKey:component];
+    [self.componensNavigatorButton setObject:buttons forKey:component];
 }
 
 -(NSDictionary*)getComponentNavigatorButtons:(NSString*)component {
-  return [self.componensNavigatorButton objectForKey:component];
+    return [self.componensNavigatorButton objectForKey:component];
 }
 
 
 -(void)clearModuleRegistry {
-  [self.modulesRegistry removeAllObjects];
+    [self.modulesRegistry removeAllObjects];
 }
 
 -(void)registerController:(UIViewController*)controller componentId:(NSString*)componentId componentType:(NSString*)componentType
 {
-  if (controller == nil || componentId == nil)
-  {
-    return;
-  }
-
-  NSMutableDictionary *componentsDic = self.modulesRegistry[componentType];
-  if (componentsDic == nil)
-  {
-    componentsDic = [@{} mutableCopy];
-    self.modulesRegistry[componentType] = componentsDic;
-  }
-
-  /*
-  TODO: we really want this error, but we need to unregister controllers when they dealloc
-  if (componentsDic[componentId])
-  {
-    [self.sharedBridge.redBox showErrorMessage:[NSString stringWithFormat:@"Controllers: controller with id %@ is already registered. Make sure all of the controller id's you use are unique.", componentId]];
-  }
-  */
-   
-  componentsDic[componentId] = controller;
+    if (controller == nil || componentId == nil)
+    {
+        return;
+    }
+    
+    NSMutableDictionary *componentsDic = self.modulesRegistry[componentType];
+    if (componentsDic == nil)
+    {
+        componentsDic = [@{} mutableCopy];
+        self.modulesRegistry[componentType] = componentsDic;
+    }
+    
+    if (componentsDic[componentId]) {
+        NSLog(@"Controllers: controller with id %@ is already registered. Make sure all of the controller id's you use are unique.", componentId);
+        NSAssert(NO, @"");
+    }
+    
+    NSValue *value = [NSValue valueWithNonretainedObject:controller];
+    componentsDic[componentId] = value;
 }
 
 -(void)unregisterController:(UIViewController*)vc
 {
-  if (vc == nil) return;
-  
-  for (NSString *key in [self.modulesRegistry allKeys])
-  {
-    NSMutableDictionary *componentsDic = self.modulesRegistry[key];
-    for (NSString *componentID in [componentsDic allKeys])
+    if (vc == nil) return;
+    
+    for (NSString *key in [self.modulesRegistry allKeys])
     {
-      UIViewController *tmpVc = componentsDic[componentID];
-      if (tmpVc == vc)
-      {
-        [componentsDic removeObjectForKey:componentID];
-      }
+        NSMutableDictionary *componentsDic = self.modulesRegistry[key];
+        for (NSString *componentID in [componentsDic allKeys])
+        {
+            NSValue *value = componentsDic[componentID];
+            if ([value nonretainedObjectValue] == vc) {
+                [componentsDic removeObjectForKey:componentID];
+            }
+        }
     }
-  }
 }
 
 -(id)getControllerWithId:(NSString*)componentId componentType:(NSString*)componentType
 {
-  if (componentId == nil)
-  {
-    return nil;
-  }
-
-  id component = nil;
-
-  NSMutableDictionary *componentsDic = self.modulesRegistry[componentType];
-  if (componentsDic != nil)
-  {
-    component = componentsDic[componentId];
-  }
-
-  return component;
+    if (componentId == nil)
+    {
+        return nil;
+    }
+    
+    id component = nil;
+    
+    NSMutableDictionary *componentsDic = self.modulesRegistry[componentType];
+    if (componentsDic != nil)
+    {
+        component = componentsDic[componentId];
+    }
+    
+    return [component nonretainedObjectValue];
 }
 
 -(void)initBridgeWithBundleURL:(NSURL *)bundleURL
 {
-  [self initBridgeWithBundleURL :bundleURL launchOptions:nil];
+    [self initBridgeWithBundleURL :bundleURL launchOptions:nil];
 }
 
 -(void)initBridgeWithBundleURL:(NSURL *)bundleURL launchOptions:(NSDictionary *)launchOptions
 {
-  if (self.sharedBridge) return;
-
-  self.bundleURL = bundleURL;
-  self.sharedBridge = [[RCTBridge alloc] initWithDelegate:self launchOptions:launchOptions];
+    if (self.sharedBridge) return;
+    
+    self.bundleURL = bundleURL;
+    self.sharedBridge = [[RCTBridge alloc] initWithDelegate:self launchOptions:launchOptions];
 }
 
 
 -(RCTBridge*)getBridge
 {
-  return self.sharedBridge;
+    return self.sharedBridge;
 }
 
 -(UIWindow*)getAppWindow
 {
-  UIApplication *app = [UIApplication sharedApplication];
-  UIWindow *window = (app.keyWindow != nil) ? app.keyWindow : app.windows[0];
-  return window;
+    UIApplication *app = [UIApplication sharedApplication];
+    UIWindow *window = (app.keyWindow != nil) ? app.keyWindow : app.windows[0];
+    return window;
 }
 
 #pragma mark - RCTBridgeDelegate methods
 
 - (NSURL *)sourceURLForBridge:(RCTBridge *)bridge
 {
-  return self.bundleURL;
+    return self.bundleURL;
 }
 
 @end

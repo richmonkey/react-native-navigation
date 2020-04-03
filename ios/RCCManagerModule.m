@@ -59,7 +59,18 @@ RCT_EXPORT_METHOD(registerNavigatorButtons:(NSString*)componentId navigatorButto
     NSLog(@"registerNavigatorButtons:%@, %@", componentId, buttons);
     [[RCCManager sharedIntance] registerComponentNavigatorButtons:componentId navigatorButtons:buttons];
 }
-                  
+    
+RCT_EXPORT_METHOD(setResult:(NSString*)screenInstanceId result:(NSDictionary*)result)
+{
+    RCCViewController* controller = [[RCCManager sharedInstance] getControllerWithId:screenInstanceId componentType:@"ViewControllerIOS"];
+
+    if (!controller || ![controller isKindOfClass:[RCCViewController class]]) {
+        return;
+    }
+    [controller.delegate onResult:result];
+}
+
+
 RCT_EXPORT_METHOD(
 NavigationControllerIOS:(NSString*)controllerId performAction:(NSString*)performAction actionParams:(NSDictionary*)actionParams)
 {
@@ -136,9 +147,9 @@ modalDismissLightBox)
         NSDictionary *navigatorStyle = props[@"style"];
         Class cls = [[RCCManager sharedIntance] getComponent:component];
         if (cls) {
-            controller = [[cls alloc] initWithComponent:component passProps:passProps navigatorStyle:navigatorStyle globalProps:globalProps bridge:bridge];
+            controller = [[cls alloc] initWithComponent:component passProps:passProps navigatorStyle:navigatorStyle bridge:bridge];
         } else {
-            controller = [[RCCViewController alloc] initWithProps:props globalProps:globalProps bridge:bridge];
+            controller = [[RCCViewController alloc] initWithComponent:component passProps:passProps navigatorStyle:navigatorStyle bridge:bridge];
         }
     }
     
@@ -148,12 +159,7 @@ modalDismissLightBox)
         controller = [[RCCNavigationController alloc] initWithProps:props globalProps:globalProps bridge:bridge];
     }
     
-    // register the controller if we have an id
-    NSString *componentId = props[@"id"];
-    if (controller && componentId)
-    {
-        [[RCCManager sharedInstance] registerController:controller componentId:componentId componentType:type];
-    }
+ 
     
     return controller;
 }

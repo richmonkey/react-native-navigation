@@ -2,52 +2,7 @@
 import {NativeModules} from 'react-native';
 import _ from 'lodash';
 
-const resolveAssetSource = require('react-native/Libraries/Image/resolveAssetSource');
 const NativeReactModule = NativeModules.NavigationReactModule;
-
-
-var newPlatformSpecific = {
-    push:function(screenParams) {
-        NativeReactModule.push(screenParams);
-    },
-
-    pop:function(screenParams) {
-        NativeReactModule.pop(screenParams);
-    },
-
-    popToRoot: function(screenParams) {
-        NativeReactModule.popToRoot(screenParams);
-    },
-
-    toggleTopBarVisible: function(screenInstanceID, visible, animated) {
-        NativeReactModule.setTopBarVisible(screenInstanceID, visible, animated);
-    },
-
-    setScreenTitleBarTitle: function(screenInstanceID, title) {
-        NativeReactModule.setScreenTitleBarTitle(screenInstanceID, title);
-    },
-
-    setScreenTitleBarSubtitle: function(screenInstanceID, subtitle) {
-        NativeReactModule.setScreenTitleBarSubtitle(screenInstanceID, subtitle);
-    },
-
-    setScreenButtons: function(screenInstanceID, navigatorEventID, rightButtons, leftButton, fab) {
-        NativeReactModule.setScreenButtons(screenInstanceID, navigatorEventID, rightButtons, leftButton, fab);
-    },
-
-    showModal: function(screenParams) {
-        NativeReactModule.showModal(screenParams);
-    },
-
-    dismissTopModal: function() {
-        NativeReactModule.dismissTopModal();
-    },
-
-    dismissAllModals: function() {
-        NativeReactModule.dismissAllModals();
-    },
-};
-
 
 function navigatorPush(navigator, params) {
     var params = Object.assign({}, params);
@@ -64,7 +19,7 @@ function navigatorPush(navigator, params) {
     }
     var adapted = adaptNavigationStyleToScreenStyle(params);
     console.log("params:", adapted);
-    newPlatformSpecific.push(adapted);
+    NativeReactModule.push(adapted);    
 }
 
 
@@ -73,7 +28,7 @@ function navigatorPop(navigator, params) {
   params.screenInstanceID = navigator.screenInstanceID;
   params.navigatorEventID = navigator.navigatorEventID;
   var adapted = adaptNavigationParams(params);
-  newPlatformSpecific.pop(adapted);
+  NativeReactModule.pop(adapted);    
 }
 
 function navigatorPopToRoot(navigator, params) {
@@ -81,7 +36,7 @@ function navigatorPopToRoot(navigator, params) {
   params.screenInstanceID = navigator.screenInstanceID;
   params.navigatorEventID = navigator.navigatorEventID;
   var adapted = adaptNavigationParams(params);
-  newPlatformSpecific.popToRoot(adapted);
+  NativeReactModule.popToRoot(adapted);    
 }
 
 function navigatorSetButtons(navigator, navigatorEventID, _params) {
@@ -101,16 +56,18 @@ function navigatorSetButtons(navigator, navigatorEventID, _params) {
   }
 
   const fab = undefined
-  newPlatformSpecific.setScreenButtons(navigator.screenInstanceID, navigatorEventID, params.rightButtons, leftButton, fab);
+
+  NativeReactModule.setScreenButtons(navigator.screenInstanceID, navigatorEventID, params.rightButtons, leftButton, fab);
 }
 
 
+    
 function navigatorSetTitle(navigator, params) {
-  newPlatformSpecific.setScreenTitleBarTitle(navigator.screenInstanceID, params.title);
+  NativeReactModule.setScreenTitleBarTitle(navigator.screenInstanceID, params.title);
 }
 
 function navigatorSetSubtitle(navigator, params) {
-  newPlatformSpecific.setScreenTitleBarSubtitle(navigator.screenInstanceID, params.subtitle);
+  NativeReactModule.setScreenTitleBarSubtitle(navigator.screenInstanceID, params.subtitle);
 }
 
 
@@ -119,11 +76,7 @@ function navigatorToggleNavBar(navigator, params) {
   const visible = params.to === 'shown';
   const animated = !(params.animated === false);
 
-  newPlatformSpecific.toggleTopBarVisible(
-    screenInstanceID,
-    visible,
-    animated
-  );
+  NativeReactModule.setTopBarVisible(screenInstanceID, visible, animated);    
 }
 
 function showModal(params) {
@@ -142,16 +95,44 @@ function showModal(params) {
   }
   var adapted = adaptNavigationStyleToScreenStyle(params);
   console.log("params:", adapted);
-  newPlatformSpecific.showModal(adapted);
+
+  NativeReactModule.showModal(adapted);    
 }
 
 function dismissModal() {
-  newPlatformSpecific.dismissTopModal();
+  NativeReactModule.dismissTopModal();    
 }
 
 function dismissAllModals(params) {
-  newPlatformSpecific.dismissAllModals();
+  NativeReactModule.dismissAllModals();    
 }
+
+
+function registerNavigatorButtons(screenID, params) {
+    const params = _.cloneDeep(_params);
+    if (params.rightButtons) {
+        params.rightButtons.forEach(function(button) {
+            button.enabled = !button.disabled;
+        });
+    }
+    var leftButton = undefined;
+    if (params.leftButtons) {
+        params.leftButtons.forEach(function(button) {
+            button.enabled = !button.disabled;
+        });
+
+        if (params.leftButtons.length > 0) {
+            leftButton = params.leftButtons[0];
+        }
+    }
+    NativeReactModule.setScreenButtons(screenID, params.rightButtons, leftButton);  
+}
+
+
+function setScreenResult(screenInstanceID, result) {
+    NativeReactModule.setResult(screenInstanceID, result);
+}
+
 
 
 //helper function
@@ -232,14 +213,16 @@ function adaptNavigationParams(screen) {
 
 
 export default {
-  navigatorPush,
-  navigatorPop,
-  navigatorPopToRoot,    
-  showModal,
-  dismissModal,
-  dismissAllModals,
-  navigatorSetButtons,
-  navigatorSetTitle,
-  navigatorSetSubtitle,
-  navigatorToggleNavBar,
+    registerNavigatorButtons,    
+    navigatorPush,
+    navigatorPop,
+    navigatorPopToRoot,    
+    showModal,
+    dismissModal,
+    dismissAllModals,
+    navigatorSetButtons,
+    navigatorSetTitle,
+    navigatorSetSubtitle,
+    navigatorToggleNavBar,
+    setScreenResult,    
 };

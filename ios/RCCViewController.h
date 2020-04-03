@@ -1,16 +1,21 @@
 #import <UIKit/UIKit.h>
 #import <React/RCTBridge.h>
 
-extern NSString* const RCCViewControllerCancelReactTouchesNotification;
+
+@protocol RCCViewControllerDelegate <NSObject>
+-(void)onResult:(NSDictionary*)result;
+@end
 
 @interface RCCViewController : UIViewController
 
++(NSString*)uniqueId:(NSString*)prefix;
+
 @property (nonatomic) NSMutableDictionary *navigatorStyle;
 @property (nonatomic) BOOL navBarHidden;
+@property (nonatomic, weak) id<RCCViewControllerDelegate> delegate;
 
 
-- (instancetype)initWithProps:(NSDictionary *)props globalProps:(NSDictionary *)globalProps bridge:(RCTBridge *)bridge;
-- (instancetype)initWithComponent:(NSString *)component passProps:(NSDictionary *)passProps navigatorStyle:(NSDictionary*)navigatorStyle globalProps:(NSDictionary *)globalProps bridge:(RCTBridge *)bridge;
+- (instancetype)initWithComponent:(NSString *)component passProps:(NSDictionary *)passProps navigatorStyle:(NSDictionary*)navigatorStyle bridge:(RCTBridge *)bridge;
 - (void)setStyleOnInit;
 - (void)setNavBarVisibilityChange:(BOOL)animated;
 @end
