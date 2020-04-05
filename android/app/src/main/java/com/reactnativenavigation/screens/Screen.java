@@ -9,9 +9,7 @@ import android.view.Window;
 import android.widget.RelativeLayout;
 
 import com.reactnativenavigation.animation.VisibilityAnimator;
-import com.reactnativenavigation.events.Event;
-import com.reactnativenavigation.events.EventBus;
-import com.reactnativenavigation.events.Subscriber;
+
 import com.reactnativenavigation.params.BaseScreenParams;
 import com.reactnativenavigation.params.ScreenParams;
 import com.reactnativenavigation.params.StyleParams;
@@ -26,7 +24,7 @@ import java.util.List;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
-public abstract class Screen extends RelativeLayout implements Subscriber {
+public abstract class Screen extends RelativeLayout {
 
     public interface OnDisplayListener {
         void onDisplay();
@@ -46,13 +44,9 @@ public abstract class Screen extends RelativeLayout implements Subscriber {
         styleParams = screenParams.styleParams;
         this.leftButtonOnClickListener = leftButtonOnClickListener;
         createViews();
-        EventBus.instance.register(this);
     }
 
-    @Override
-    public void onEvent(Event event) {
 
-    }
 
     public void setStyle() {
         setStatusBarColor(styleParams.statusBarColor);
@@ -180,6 +174,10 @@ public abstract class Screen extends RelativeLayout implements Subscriber {
                 screenParams.overrideBackPressInJs);
     }
 
+    public void enableRightButton(boolean enabled) {
+        topBar.enableRightButton(enabled);
+    }
+
     public StyleParams getStyleParams() {
         return screenParams.styleParams;
     }
@@ -199,6 +197,6 @@ public abstract class Screen extends RelativeLayout implements Subscriber {
 
     public void destroy() {
         unmountReactView();
-        EventBus.instance.unregister(this);
+
     }
 }

@@ -98,4 +98,9 @@ public class TopBar extends AppBarLayout {
         titleBar.setLeftButton(titleBarLeftButtonParams, leftButtonOnClickListener, navigatorEventId,
                 overrideBackPressInJs);
     }
+
+    public void enableRightButton(boolean enabled) {
+        titleBar.enableRightButton(enabled);
+    }
+
 }

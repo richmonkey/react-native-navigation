@@ -23,6 +23,14 @@ var Controllers = {
       setRightButtons: function (buttons, animated = false) {
         RCCManager.NavigationControllerIOS(id, "setButtons", {buttons: buttons, side: "right", animated: animated});
       },
+      enableLeftButton: function (enabled) {
+         RCCManager.NavigationControllerIOS(id, "enableButton", {enabled: enabled, side: "left"});            
+      },
+
+      enableRightButton: function (enabled) {
+         RCCManager.NavigationControllerIOS(id, "enableButton", {enabled: enabled, side: "right"});            
+      },
+        
       setHidden: function(params = {}) {
         RCCManager.NavigationControllerIOS(id, "setHidden", params);
       }
@@ -110,6 +118,15 @@ function navigatorSetButtons(navigator, navigatorEventID, params) {
 }
 
 
+function navigatorEnableRightButton(navigator, params) {
+    Controllers.NavigationControllerIOS(navigator.navigatorID).enableRightButton(params.enabled);
+}
+
+function navigatorEnableLeftButton(navigator, params) {
+    Controllers.NavigationControllerIOS(navigator.navigatorID).enableLeftButton(params.enabled);
+}
+
+
 function showModal(params) {
   //ViewControllerIOS||NavigationControllerIOS
   if (!params.hideNavigationBar) {
@@ -156,6 +173,8 @@ export default {
     showLightBox,
     dismissLightBox,
     navigatorSetButtons,
+    navigatorEnableRightButton,
+    navigatorEnableLeftButton,
     navigatorSetTitle,
     navigatorSetTitleImage,
     navigatorToggleNavBar,

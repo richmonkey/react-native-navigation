@@ -84,6 +84,14 @@ public class NavigationCommandsHandler {
         navigatorButtons.put(componentId, a);
     }
 
+    public static Bundle[] getNavigatorButtons(String componentId) {
+        if (navigatorButtons.containsKey(componentId)) {
+            return navigatorButtons.get(componentId);
+        } else {
+            return null;
+        }
+    }
+
     public static void registerActivityClass(Class<?> cls, String id) {
         activitieClasses.put(id, cls);
     }
@@ -285,6 +293,20 @@ public class NavigationCommandsHandler {
             @Override
             public void run() {
                 currentActivity.setTitleBarLeftButton(screenInstanceId, navigatorEventId, titleBarButtons);
+            }
+        });
+    }
+
+    public static void enableRightButton(final String screenInstanceId, final boolean enabled) {
+        final NavigationActivity currentActivity = NavigationActivity.currentActivity;
+        if (currentActivity == null) {
+            return;
+        }
+
+        NavigationApplication.instance.runOnMainThread(new Runnable() {
+            @Override
+            public void run() {
+                currentActivity.enableRightButton(screenInstanceId, enabled);
             }
         });
     }

@@ -28,10 +28,6 @@
     return sharedInstance;
 }
 
-+ (instancetype)sharedIntance
-{
-    return [RCCManager sharedInstance];
-}
 
 - (instancetype)init
 {

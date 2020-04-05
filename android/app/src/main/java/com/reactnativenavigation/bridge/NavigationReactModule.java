@@ -74,6 +74,11 @@ public class NavigationReactModule extends ReactContextBaseJavaModule {
         }
     }
 
+    @ReactMethod
+    public void enableRightButton(String screenInstanceId, boolean enabled) {
+        NavigationCommandsHandler.enableRightButton(screenInstanceId, enabled);
+    }
+
     private void setScreenTitleBarRightButtons(String screenInstanceId, String navigatorEventId, ReadableArray rightButtonsParams) {
         List<TitleBarButtonParams> rightButtons = new TitleBarButtonParamsParser()
                 .parseButtons(BundleConverter.toBundle(rightButtonsParams));
@@ -97,7 +102,7 @@ public class NavigationReactModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void setScreenResult(String screenInstanceId, ReadableMap res) {
+    public void setResult(String screenInstanceId, ReadableMap res) {
         Bundle bundle = BundleConverter.toBundle(res);
         NavigationCommandsHandler.setScreenResult(screenInstanceId, bundle);
     }

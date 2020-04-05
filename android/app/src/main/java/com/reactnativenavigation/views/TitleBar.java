@@ -8,6 +8,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.widget.ActionMenuView;
 import androidx.appcompat.widget.Toolbar;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.AccelerateInterpolator;
@@ -54,6 +55,14 @@ public class TitleBar extends Toolbar {
             createAndSetLeftButton(leftButtonParams, leftButtonOnClickListener, navigatorEventId, overrideBackPressInJs);
         } else if (hasLeftButton()) {
             updateLeftButton(leftButtonParams);
+        }
+    }
+
+    public void enableRightButton(boolean enabled) {
+        Menu menu = getMenu();
+        if (menu.size() > 0) {
+            MenuItem item = menu.getItem(0);
+            item.setEnabled(enabled);
         }
     }
 

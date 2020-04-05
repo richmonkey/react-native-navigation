@@ -7,24 +7,41 @@ import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import android.view.KeyEvent;
+import android.view.View;
+import android.widget.RelativeLayout;
 
 import com.facebook.react.modules.core.DefaultHardwareBackBtnHandler;
 import com.facebook.react.modules.core.PermissionAwareActivity;
 import com.facebook.react.modules.core.PermissionListener;
+import com.reactnativenavigation.params.ScreenParams;
 import com.reactnativenavigation.params.parsers.StyleParamsParser;
 import com.reactnativenavigation.react.NavigationApplication;
-import com.reactnativenavigation.layouts.Layout;
-import com.reactnativenavigation.layouts.LayoutFactory;
 import com.reactnativenavigation.params.ActivityParams;
 import com.reactnativenavigation.params.AppStyle;
 import com.reactnativenavigation.params.TitleBarButtonParams;
 import com.reactnativenavigation.params.TitleBarLeftButtonParams;
 import com.reactnativenavigation.react.JsDevReloadHandler;
+import com.reactnativenavigation.screens.Screen;
+import com.reactnativenavigation.screens.ScreenFactory;
+import com.reactnativenavigation.utils.Task;
+import com.reactnativenavigation.views.LeftButtonOnClickListener;
+
 import java.util.List;
 
-public class NavigationActivity extends AppCompatActivity implements DefaultHardwareBackBtnHandler,
-        PermissionAwareActivity {
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 
+public class NavigationActivity extends AppCompatActivity implements DefaultHardwareBackBtnHandler,
+        PermissionAwareActivity, LeftButtonOnClickListener {
+
+
+    public static long _id = 0;
+
+    public static String uniqueId(String prefix) {
+        synchronized (NavigationActivity.class) {
+            long newId = ++_id;
+            return String.format("%s%d", (prefix != null ? prefix : ""), newId);
+        }
+    }
     /**
      * Although we start multiple activities, we make sure to pass Intent.CLEAR_TASK | Intent.NEW_TASK
      * So that we actually have only 1 instance of the activity running at one time.
@@ -36,7 +53,8 @@ public class NavigationActivity extends AppCompatActivity implements DefaultHard
     static NavigationActivity currentActivity;
 
     private ActivityParams activityParams;
-    private Layout layout;
+    private RelativeLayout layout;
+    private Screen screen;
     @Nullable protected PermissionListener mPermissionListener;
 
     @Override
@@ -59,12 +77,22 @@ public class NavigationActivity extends AppCompatActivity implements DefaultHard
 
 
     private void createLayout() {
-        layout = LayoutFactory.create(this, activityParams);
+        layout = new RelativeLayout(this);
+        RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT);
+
+        Screen initialScreen = ScreenFactory.create(this, activityParams.screenParams, this);
+        initialScreen.setVisibility(View.INVISIBLE);
+        layout.addView(initialScreen, layout.getChildCount() - 1, lp);
+        screen = initialScreen;
+        screen.setStyle();
+        screen.setVisibility(View.VISIBLE);
+
         if (hasBackgroundColor()) {
-            layout.asView().setBackgroundColor(AppStyle.appStyle.screenBackgroundColor.getColor());
+            layout.setBackgroundColor(AppStyle.appStyle.screenBackgroundColor.getColor());
         }
-        setContentView(layout.asView());
+        setContentView(layout);
     }
+
 
     private boolean hasBackgroundColor() {
         return AppStyle.appStyle.screenBackgroundColor != null &&
@@ -113,7 +141,8 @@ public class NavigationActivity extends AppCompatActivity implements DefaultHard
 
     private void destroyLayouts() {
         if (layout != null) {
-            layout.destroy();
+            screen.destroy();
+            layout.removeView(screen);
             layout = null;
         }
     }
@@ -125,9 +154,13 @@ public class NavigationActivity extends AppCompatActivity implements DefaultHard
 
     @Override
     public void onBackPressed() {
-        if (layout != null && !layout.onBackPressed()) {
-            NavigationApplication.instance.getReactGateway().onBackPressed();
+        ScreenParams currentScreen = screen.screenParams;
+        if (currentScreen.overrideBackPressInJs) {
+            NavigationApplication.instance.getEventEmitter().sendNavigatorEvent("backPress", currentScreen.getNavigatorEventId());
+            return;
         }
+        this.finish();
+        return;
     }
 
     @Override
@@ -140,28 +173,69 @@ public class NavigationActivity extends AppCompatActivity implements DefaultHard
         return JsDevReloadHandler.onKeyUp(getCurrentFocus(), keyCode) || super.onKeyUp(keyCode, event);
     }
 
+    @Override
+    public boolean onTitleBarBackButtonClick() {
+        onBackPressed();
+        return true;
+    }
+
 
     //TODO all these setters should be combined to something like setStyle
-    void setTopBarVisible(String screenInstanceId, boolean hidden, boolean animated) {
-        layout.setTopBarVisible(screenInstanceId, hidden, animated);
+    void setTopBarVisible(String screenInstanceId, final boolean visible, final boolean animated) {
+        performOnScreen(screenInstanceId, new Task<Screen>() {
+            @Override
+            public void run(Screen param) {
+                param.setTopBarVisible(visible, animated);
+            }
+        });
     }
 
 
-    void setTitleBarTitle(String screenInstanceId, String title) {
-        layout.setTitleBarTitle(screenInstanceId, title);
+    void setTitleBarTitle(String screenInstanceId, final String title) {
+        performOnScreen(screenInstanceId, new Task<Screen>() {
+            @Override
+            public void run(Screen param) {
+                param.setTitleBarTitle(title);
+            }
+        });
     }
 
-    public void setTitleBarSubtitle(String screenInstanceId, String subtitle) {
-        layout.setTitleBarSubtitle(screenInstanceId, subtitle);
+    public void setTitleBarSubtitle(String screenInstanceId, final String subtitle) {
+        performOnScreen(screenInstanceId, new Task<Screen>() {
+            @Override
+            public void run(Screen param) {
+                param.setTitleBarSubtitle(subtitle);
+            }
+        });
     }
 
-    void setTitleBarButtons(String screenInstanceId, String navigatorEventId, List<TitleBarButtonParams> titleBarButtons) {
-        layout.setTitleBarRightButtons(screenInstanceId, navigatorEventId, titleBarButtons);
+    void setTitleBarButtons(String screenInstanceId, final String navigatorEventId, final List<TitleBarButtonParams> titleBarButtons) {
+        performOnScreen(screenInstanceId, new Task<Screen>() {
+            @Override
+            public void run(Screen param) {
+                param.setTitleBarRightButtons(navigatorEventId, titleBarButtons);
+            }
+        });
     }
 
-    void setTitleBarLeftButton(String screenInstanceId, String navigatorEventId, TitleBarLeftButtonParams titleBarLeftButton) {
-        layout.setTitleBarLeftButton(screenInstanceId, navigatorEventId, titleBarLeftButton);
+    void setTitleBarLeftButton(String screenInstanceId, final String navigatorEventId, final TitleBarLeftButtonParams titleBarLeftButton) {
+        performOnScreen(screenInstanceId, new Task<Screen>() {
+            @Override
+            public void run(Screen param) {
+                param.setTitleBarLeftButton(navigatorEventId, NavigationActivity.this, titleBarLeftButton);
+            }
+        });
     }
+
+    void enableRightButton(String screenInstanceId, final boolean enabled) {
+        performOnScreen(screenInstanceId, new Task<Screen>() {
+            @Override
+            public void run(Screen param) {
+                param.enableRightButton(enabled);
+            }
+        });
+    }
+
 
 
     @TargetApi(Build.VERSION_CODES.M)
@@ -175,5 +249,14 @@ public class NavigationActivity extends AppCompatActivity implements DefaultHard
             mPermissionListener = null;
         }
     }
+
+
+    private void performOnScreen(String screenInstanceId, Task<Screen> task) {
+        if (screen.getScreenInstanceId().equals(screenInstanceId)) {
+            task.run(screen);
+            return;
+        }
+    }
+
 
 }

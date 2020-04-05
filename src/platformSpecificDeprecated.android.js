@@ -61,6 +61,14 @@ function navigatorSetButtons(navigator, navigatorEventID, _params) {
 }
 
 
+function navigatorEnableRightButton(navigator, params) {
+    NativeReactModule.enableRightButton(navigator.screenInstanceID, params.enabled);    
+}
+
+function navigatorEnableLeftButton(navigator, params) {
+    console.warn("can't support enable/disable left button on android");
+}
+
     
 function navigatorSetTitle(navigator, params) {
   NativeReactModule.setScreenTitleBarTitle(navigator.screenInstanceID, params.title);
@@ -108,7 +116,7 @@ function dismissAllModals(params) {
 }
 
 
-function registerNavigatorButtons(screenID, params) {
+function registerNavigatorButtons(screenID, _params) {
     const params = _.cloneDeep(_params);
     if (params.rightButtons) {
         params.rightButtons.forEach(function(button) {
@@ -125,7 +133,7 @@ function registerNavigatorButtons(screenID, params) {
             leftButton = params.leftButtons[0];
         }
     }
-    NativeReactModule.setScreenButtons(screenID, params.rightButtons, leftButton);  
+    NativeReactModule.registerNavigatorButtons(screenID, params.rightButtons, leftButton);  
 }
 
 
@@ -221,6 +229,8 @@ export default {
     dismissModal,
     dismissAllModals,
     navigatorSetButtons,
+    navigatorEnableRightButton,
+    navigatorEnableLeftButton,    
     navigatorSetTitle,
     navigatorSetSubtitle,
     navigatorToggleNavBar,

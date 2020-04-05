@@ -266,7 +266,16 @@ export default class Navigator {
       }
       return platformSpecific.navigatorSetButtons(this, this.navigatorEventID, params);
     }
-  
+
+    //enabled:true or false
+    enableRightButton(params) {
+        return platformSpecific.navigatorEnableRightButton(this, params);
+    }
+
+    enableLeftButton(params) {
+        return platformSpecific.navigatorEnableLeftButton(this, params);
+    }    
+    
     setTitle(params = {}) {
       if (params['style']) {
         params['style'] = Object.assign({}, params['style']);

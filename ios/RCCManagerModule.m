@@ -57,7 +57,7 @@ RCT_EXPORT_MODULE(RCCManager);
 RCT_EXPORT_METHOD(registerNavigatorButtons:(NSString*)componentId navigatorButtons:(NSDictionary*)buttons)
 {
     NSLog(@"registerNavigatorButtons:%@, %@", componentId, buttons);
-    [[RCCManager sharedIntance] registerComponentNavigatorButtons:componentId navigatorButtons:buttons];
+    [[RCCManager sharedInstance] registerComponentNavigatorButtons:componentId navigatorButtons:buttons];
 }
     
 RCT_EXPORT_METHOD(setResult:(NSString*)screenInstanceId result:(NSDictionary*)result)
@@ -103,8 +103,7 @@ RCT_EXPORT_METHOD(
     UIViewController* vc = [RCCManagerModule lastModalPresenterViewController];
     if ([self viewControllerIsModal:vc])
     {
-        [[RCCManager sharedIntance] unregisterController:vc];
-        
+
         [vc dismissViewControllerAnimated:![animationType isEqualToString:@"none"]
                                completion:^(){ resolve(nil); }];
     }
@@ -145,7 +144,7 @@ modalDismissLightBox)
     {
         NSDictionary *passProps = props[@"passProps"];
         NSDictionary *navigatorStyle = props[@"style"];
-        Class cls = [[RCCManager sharedIntance] getComponent:component];
+        Class cls = [[RCCManager sharedInstance] getComponent:component];
         if (cls) {
             controller = [[cls alloc] initWithComponent:component passProps:passProps navigatorStyle:navigatorStyle bridge:bridge];
         } else {

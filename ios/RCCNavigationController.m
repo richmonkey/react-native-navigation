@@ -40,7 +40,7 @@ NSString const *CALLBACK_ASSOCIATED_ID = @"RCCNavigationController.CALLBACK_ASSO
     
     UIViewController *viewController = nil;
     
-    Class cls = [[RCCManager sharedIntance] getComponent:component];
+    Class cls = [[RCCManager sharedInstance] getComponent:component];
     if (cls) {
         viewController = [[cls alloc] initWithComponent:component passProps:passProps navigatorStyle:navigatorStyle bridge:bridge];
     } else {
@@ -127,7 +127,7 @@ NSString const *CALLBACK_ASSOCIATED_ID = @"RCCNavigationController.CALLBACK_ASSO
         
         UIViewController *viewController;
         
-        Class cls = [[RCCManager sharedIntance] getComponent:component];
+        Class cls = [[RCCManager sharedInstance] getComponent:component];
         if (cls) {
             viewController = [[cls alloc] initWithComponent:component passProps:passProps navigatorStyle:navigatorStyle bridge:bridge];
         } else {
@@ -233,6 +233,17 @@ NSString const *CALLBACK_ASSOCIATED_ID = @"RCCNavigationController.CALLBACK_ASSO
         return;
     }
     
+    //enable or disable left/right button
+    if ([performAction isEqualToString:@"enableButton"]) {
+        BOOL enabled = [actionParams[@"enabled"] boolValue];
+        NSString *side = [actionParams objectForKey:@"side"];
+        if ([side isEqualToString:@"left"]) {
+            self.topViewController.navigationItem.leftBarButtonItem.enabled = enabled;
+        } else if ([side isEqualToString:@"right"]) {
+            self.topViewController.navigationItem.rightBarButtonItem.enabled = enabled;
+        }
+        return;
+    }
     // setTitle
     if ([performAction isEqualToString:@"setTitle"] || [performAction isEqualToString:@"setTitleImage"])
     {
