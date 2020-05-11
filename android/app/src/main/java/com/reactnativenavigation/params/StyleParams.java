@@ -34,16 +34,11 @@ public class StyleParams {
     }
 
     public Color statusBarColor;
-    public Color contextualMenuStatusBarColor;
-    public Color contextualMenuButtonsColor;
-    public Color contextualMenuBackgroundColor;
-
     public Color topBarColor;
     public boolean topBarHidden;
     public boolean topBarElevationShadowEnabled;
     public boolean topTabsHidden;
     public boolean drawScreenBelowTopBar;
-
     public boolean titleBarHidden;
     public boolean titleBarHideOnScroll;
     public boolean topBarTransparent;
@@ -53,24 +48,6 @@ public class StyleParams {
     public Color titleBarButtonColor;
     public Color titleBarDisabledButtonColor;
     public boolean backButtonHidden;
-
-    public Color topTabTextColor;
-    public Color selectedTopTabTextColor;
-    public int selectedTopTabIndicatorHeight;
-    public Color selectedTopTabIndicatorColor;
-
     public Color screenBackgroundColor;
-
-    public boolean drawScreenAboveBottomTabs;
-
-    public boolean bottomTabsHidden;
-    public boolean bottomTabsHiddenOnScroll;
-    public Color bottomTabsColor;
-    public Color selectedBottomTabsButtonColor;
-    public Color bottomTabsButtonColor;
-    public boolean forceTitlesDisplay;
-    public Color bottomTabBadgeTextColor;
-    public Color bottomTabBadgeBackgroundColor;
-
     public Color navigationBarColor;
 }

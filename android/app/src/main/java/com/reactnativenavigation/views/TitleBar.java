@@ -13,7 +13,7 @@ import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.AccelerateInterpolator;
 
-import com.reactnativenavigation.params.BaseTitleBarButtonParams;
+
 import com.reactnativenavigation.params.StyleParams;
 import com.reactnativenavigation.params.TitleBarButtonParams;
 import com.reactnativenavigation.params.TitleBarLeftButtonParams;
@@ -110,7 +110,7 @@ public class TitleBar extends Toolbar {
         }
     }
 
-    protected void addButtonInReverseOrder(List<? extends BaseTitleBarButtonParams> buttons, int i, TitleBarButton button) {
+    protected void addButtonInReverseOrder(List<? extends TitleBarButtonParams> buttons, int i, TitleBarButton button) {
         final int index = buttons.size() - i - 1;
         button.addToMenu(index);
     }

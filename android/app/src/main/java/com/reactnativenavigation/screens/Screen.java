@@ -10,7 +10,6 @@ import android.widget.RelativeLayout;
 
 import com.reactnativenavigation.animation.VisibilityAnimator;
 
-import com.reactnativenavigation.params.BaseScreenParams;
 import com.reactnativenavigation.params.ScreenParams;
 import com.reactnativenavigation.params.StyleParams;
 import com.reactnativenavigation.params.TitleBarButtonParams;
@@ -145,7 +144,7 @@ public abstract class Screen extends RelativeLayout {
 
     public abstract String getNavigatorEventId();
 
-    public BaseScreenParams getScreenParams() {
+    public ScreenParams getScreenParams() {
         return screenParams;
     }
 

@@ -166,7 +166,6 @@ public class BundleConverter {
             }
 
             bundle.putParcelableArray(key, v);
-            bundle.getParcelableArray(key);
         }
     }
 }

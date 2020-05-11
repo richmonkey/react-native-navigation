@@ -1,13 +1,10 @@
 package com.reactnativenavigation.params.parsers;
 
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Parcelable;
 
 import com.reactnativenavigation.params.NavigationParams;
 import com.reactnativenavigation.params.ScreenParams;
-import com.reactnativenavigation.react.ImageLoader;
-
 import java.util.Set;
 
 public class ScreenParamsParser extends Parser {
@@ -34,11 +31,6 @@ public class ScreenParamsParser extends Parser {
         result.rightButtons = ButtonParser.parseRightButton(params);
         result.overrideBackPressInJs = params.getBoolean(OVERRIDE_BACK_PRESS, false);
         result.leftButton = ButtonParser.parseLeftButton(params);
-        result.tabLabel = getTabLabel(params);
-        result.tabIcon = getTabIcon(params);
-
-        result.animateScreenTransitions = params.getBoolean("animated", true);
-
         result.passProps = params.getBundle(PASS_PROPS);
         covnertPassProps(result.passProps);
 
@@ -75,20 +67,5 @@ public class ScreenParamsParser extends Parser {
         }
     }
 
-    private static Drawable getTabIcon(Bundle params) {
-        Drawable tabIcon = null;
-        if (hasKey(params, "icon")) {
-            tabIcon = ImageLoader.loadImage(params.getString("icon"));
-        }
-        return tabIcon;
-    }
-
-    private static String getTabLabel(Bundle params) {
-        String tabLabel = null;
-        if (hasKey(params, "label")) {
-            tabLabel = params.getString("label");
-        }
-        return tabLabel;
-    }
 
 }
