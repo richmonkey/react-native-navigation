@@ -14,13 +14,12 @@ var resolveAssetSource = require('react-native/Libraries/Image/resolveAssetSourc
 const _allNavigatorEventHandlers = {};
 
 
-
-function savePassProps(params) {
-    if (params.navigationParams && params.passProps) {
-      PropRegistry.save(params.navigationParams.screenInstanceID, params.passProps);
-    }
+function savePassProps(screenInstanceID, passProps) {
+  if (screenInstanceID && passProps) {
+    PropRegistry.save(screenInstanceID, passProps);
+  }
 }
-  
+
   
 function _mergeScreenSpecificSettings(screenID, screenInstanceID, params) {
     const screenClass = ComponentRegistry.getRegisteredScreen(screenID);
@@ -62,19 +61,22 @@ function navigatorPush(navigator, params) {
         navigatorButtons,
         navigatorEventID
     } = _mergeScreenSpecificSettings(params.screen, screenInstanceID, params);
-    const passProps = _.cloneDeep(params.passProps);
-    passProps.navigatorID = navigator.navigatorID;
-    passProps.screenInstanceID = screenInstanceID;
-    passProps.navigatorEventID = navigatorEventID;
-    params.passProps = passProps;
 
-    params.navigationParams = {
-        screenInstanceID,
-        navigatorEventID,
-        navigatorID: navigator.navigatorID
+    let navigationParams = { 
+      navigatorID:navigator.navigatorID,
+      screenInstanceID:screenInstanceID,
+      navigatorEventID:navigatorEventID,
     };
 
-    savePassProps(params);
+    let passProps = Object.assign({}, params.passProps, params.props, navigationParams);
+    savePassProps(screenInstanceID, passProps);
+
+    //避免通过android intent传递大的对象
+    passProps = Object.assign({}, params.passProps, navigationParams);
+    params.passProps = passProps;
+    params.navigationParams = navigationParams;
+
+    console.log("pass props");
 
     var p = {
         title: params.title,
@@ -128,20 +130,23 @@ function showModal(params) {
     passProps.navigatorEventID = navigatorEventID;
   
     params.navigationParams = {
-      screenInstanceID,
       navigatorStyle,
       navigatorButtons,
+      screenInstanceID,
       navigatorEventID,
       navigatorID: navigator.navigatorID
     };
   
-    savePassProps(params);
-  
+    savePassProps(screenInstanceID, passProps);
+
+
     var props = {
       id:navigatorID,
+      navigatorID:navigatorID,
       title:params.title,
       subtitle:params.subtitle,
       titleImage:params.titleImage,
+      screenId:params.screen,
       component:params.screen,
       passProps:passProps,
       style:navigatorStyle,
@@ -190,15 +195,8 @@ function showLightBox(params) {
     passProps.screenInstanceID = screenInstanceID;
     passProps.navigatorEventID = navigatorEventID;
   
-    params.navigationParams = {
-      screenInstanceID,
-      navigatorStyle,
-      navigatorButtons,
-      navigatorEventID,
-      navigatorID
-    };
-  
-    savePassProps(params);
+    savePassProps(screenInstanceID, passProps);
+
   
     var p = {
       component: params.screen,
@@ -207,10 +205,9 @@ function showLightBox(params) {
     }
     params = p;
     if (params['style']) {
-        params['style'] = Object.assign({}, params['style']);
-        _processProperties(params['style']);
+      params['style'] = Object.assign({}, params['style']);
+      _processProperties(params['style']);
     }
-
     platformSpecific.showLightBox(params);
 
 }

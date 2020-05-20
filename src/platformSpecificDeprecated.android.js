@@ -89,10 +89,6 @@ function navigatorToggleNavBar(navigator, params) {
 
 function showModal(params) {
   var params = Object.assign({}, params);
-  params.screenId = params.component;
-  params.navigatorID = navigator.navigatorID;
-
-
   if (params.leftButtons) {
     params.leftButton = params.leftButtons[0];
     delete(params, 'leftButtons');
