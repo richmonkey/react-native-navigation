@@ -38,6 +38,11 @@ function _registerComponentNoRedux(screenID, generator) {
             internalProps: {...PropRegistry.load(nextProps.screenInstanceID), ...nextProps}
          }
       }
+
+      componentWillUnmount() {
+        PropRegistry.release(this.props.screenInstanceID);
+      }
+
       render() {
         return (
           <InternalComponent testID={screenID} navigator={this.navigator} {...this.state.internalProps} />
@@ -68,6 +73,10 @@ function _registerComponentRedux(screenID, generator, store, Provider) {
               internalProps: {...PropRegistry.load(nextProps.screenInstanceID), ...nextProps}
           }
       }        
+
+      componentWillUnmount() {
+        PropRegistry.release(this.props.screenInstanceID);
+      }
 
       render() {
         return (

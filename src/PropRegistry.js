@@ -10,6 +10,10 @@ class PropRegistry {
   load(screenInstanceId = '') {
     return this.registry[screenInstanceId] || {};
   }
+
+  release(screenInstanceId) {
+    delete(this.registry[screenInstanceId]);
+  }
 }
 
 module.exports = new PropRegistry();
