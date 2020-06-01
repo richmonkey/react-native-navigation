@@ -7,7 +7,7 @@ import android.view.View;
 import com.reactnativenavigation.NavigationApplication;
 import com.facebook.react.ReactRootView;
 import com.reactnativenavigation.params.NavigationParams;
-import com.reactnativenavigation.screens.SingleScreen;
+import com.reactnativenavigation.screens.Screen;
 import com.reactnativenavigation.utils.ViewUtils;
 import com.reactnativenavigation.views.utils.ViewMeasurer;
 
@@ -17,10 +17,10 @@ public class ContentView extends ReactRootView {
     private final Bundle passProps;
 
     boolean isContentVisible = false;
-    private SingleScreen.OnDisplayListener onDisplayListener;
+    private Screen.OnDisplayListener onDisplayListener;
     protected ViewMeasurer viewMeasurer;
 
-    public void setOnDisplayListener(SingleScreen.OnDisplayListener onDisplayListener) {
+    public void setOnDisplayListener(Screen.OnDisplayListener onDisplayListener) {
         this.onDisplayListener = onDisplayListener;
     }
 

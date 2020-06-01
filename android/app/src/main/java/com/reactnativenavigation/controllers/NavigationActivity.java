@@ -1,19 +1,23 @@
 package com.reactnativenavigation.controllers;
 
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.Window;
 import android.widget.RelativeLayout;
 
 import com.facebook.react.modules.core.DefaultHardwareBackBtnHandler;
 import com.facebook.react.modules.core.PermissionAwareActivity;
 import com.facebook.react.modules.core.PermissionListener;
 import com.reactnativenavigation.params.ScreenParams;
+import com.reactnativenavigation.params.StyleParams;
 import com.reactnativenavigation.params.parsers.StyleParamsParser;
 import com.reactnativenavigation.react.NavigationApplication;
 import com.reactnativenavigation.params.ActivityParams;
@@ -22,8 +26,6 @@ import com.reactnativenavigation.params.TitleBarButtonParams;
 import com.reactnativenavigation.params.TitleBarLeftButtonParams;
 import com.reactnativenavigation.react.JsDevReloadHandler;
 import com.reactnativenavigation.screens.Screen;
-import com.reactnativenavigation.screens.ScreenFactory;
-import com.reactnativenavigation.utils.Task;
 import com.reactnativenavigation.views.LeftButtonOnClickListener;
 
 import java.util.List;
@@ -73,6 +75,9 @@ public class NavigationActivity extends AppCompatActivity implements DefaultHard
         NavigationCommandsHandler.registerActivity(this, activityParams.screenParams.navigationParams.screenInstanceId);
 
         createLayout();
+
+        setStatusBarColor(activityParams.screenParams.styleParams.statusBarColor);
+        setNavigationBarColor(activityParams.screenParams.styleParams.navigationBarColor);
     }
 
 
@@ -80,7 +85,7 @@ public class NavigationActivity extends AppCompatActivity implements DefaultHard
         layout = new RelativeLayout(this);
         RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT);
 
-        Screen initialScreen = ScreenFactory.create(this, activityParams.screenParams, this);
+        Screen  initialScreen = new Screen(this, activityParams.screenParams, this);
         initialScreen.setVisibility(View.INVISIBLE);
         layout.addView(initialScreen, layout.getChildCount() - 1, lp);
         screen = initialScreen;
@@ -127,7 +132,6 @@ public class NavigationActivity extends AppCompatActivity implements DefaultHard
     @Override
     protected void onStop() {
         super.onStop();
-
     }
 
     @Override
@@ -139,9 +143,32 @@ public class NavigationActivity extends AppCompatActivity implements DefaultHard
         super.onDestroy();
     }
 
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    private void setStatusBarColor(StyleParams.Color statusBarColor) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) return;
+        final Window window = this.getWindow();
+        if (statusBarColor.hasColor()) {
+            window.setStatusBarColor(statusBarColor.getColor());
+        } else {
+            window.setStatusBarColor(Color.BLACK);
+        }
+    }
+
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    public void setNavigationBarColor(StyleParams.Color navigationBarColor) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) return;
+
+        final Window window = this.getWindow();
+        if (navigationBarColor.hasColor()) {
+            window.setNavigationBarColor(navigationBarColor.getColor());
+        } else {
+            window.setNavigationBarColor(Color.BLACK);
+        }
+    }
+
     private void destroyLayouts() {
         if (layout != null) {
-            screen.destroy();
+            screen.contentView.unmountReactView();
             layout.removeView(screen);
             layout = null;
         }
@@ -181,61 +208,38 @@ public class NavigationActivity extends AppCompatActivity implements DefaultHard
 
 
     //TODO all these setters should be combined to something like setStyle
-    void setTopBarVisible(String screenInstanceId, final boolean visible, final boolean animated) {
-        performOnScreen(screenInstanceId, new Task<Screen>() {
-            @Override
-            public void run(Screen param) {
-                param.setTopBarVisible(visible, animated);
-            }
-        });
+    public void setTopBarVisible(String screenId, boolean visible, boolean animate) {
+        screen.topBarVisibilityAnimator.setVisible(visible, animate);
     }
 
-
-    void setTitleBarTitle(String screenInstanceId, final String title) {
-        performOnScreen(screenInstanceId, new Task<Screen>() {
-            @Override
-            public void run(Screen param) {
-                param.setTitleBarTitle(title);
-            }
-        });
+    public void setTitleBarTitle(String screenId, String title) {
+        screen.topBar.setTitle(title);
     }
 
-    public void setTitleBarSubtitle(String screenInstanceId, final String subtitle) {
-        performOnScreen(screenInstanceId, new Task<Screen>() {
-            @Override
-            public void run(Screen param) {
-                param.setTitleBarSubtitle(subtitle);
-            }
-        });
+    public void setTitleBarSubtitle(String screenId, String subtitle) {
+        screen.topBar.setSubtitle(subtitle);
+    }
+
+    public void setTitleBarRightButtons(String screenId, String navigatorEventId, List<TitleBarButtonParams> titleBarButtons) {
+        screen.setButtonColorFromScreen(titleBarButtons);
+        screen.topBar.setTitleBarRightButtons(navigatorEventId, titleBarButtons);
     }
 
     void setTitleBarButtons(String screenInstanceId, final String navigatorEventId, final List<TitleBarButtonParams> titleBarButtons) {
-        performOnScreen(screenInstanceId, new Task<Screen>() {
-            @Override
-            public void run(Screen param) {
-                param.setTitleBarRightButtons(navigatorEventId, titleBarButtons);
-            }
-        });
+        this.setTitleBarRightButtons(screenInstanceId, navigatorEventId, titleBarButtons);
     }
 
-    void setTitleBarLeftButton(String screenInstanceId, final String navigatorEventId, final TitleBarLeftButtonParams titleBarLeftButton) {
-        performOnScreen(screenInstanceId, new Task<Screen>() {
-            @Override
-            public void run(Screen param) {
-                param.setTitleBarLeftButton(navigatorEventId, NavigationActivity.this, titleBarLeftButton);
-            }
-        });
+    public void setTitleBarLeftButton(String screenId, String navigatorEventId,
+                                      TitleBarLeftButtonParams titleBarLeftButtonParams) {
+        screen.topBar.setTitleBarLeftButton(navigatorEventId,
+                this,
+                titleBarLeftButtonParams,
+                activityParams.screenParams.overrideBackPressInJs);
     }
 
-    void enableRightButton(String screenInstanceId, final boolean enabled) {
-        performOnScreen(screenInstanceId, new Task<Screen>() {
-            @Override
-            public void run(Screen param) {
-                param.enableRightButton(enabled);
-            }
-        });
+    public void enableRightButton(String screenId, boolean enabled) {
+        screen.topBar.enableRightButton(enabled);
     }
-
 
 
     @TargetApi(Build.VERSION_CODES.M)
@@ -249,14 +253,5 @@ public class NavigationActivity extends AppCompatActivity implements DefaultHard
             mPermissionListener = null;
         }
     }
-
-
-    private void performOnScreen(String screenInstanceId, Task<Screen> task) {
-        if (screen.getScreenInstanceId().equals(screenInstanceId)) {
-            task.run(screen);
-            return;
-        }
-    }
-
 
 }

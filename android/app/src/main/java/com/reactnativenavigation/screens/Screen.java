@@ -1,20 +1,13 @@
 package com.reactnativenavigation.screens;
 
-import android.annotation.TargetApi;
-import android.app.Activity;
-import android.graphics.Color;
-import android.os.Build;
 import androidx.appcompat.app.AppCompatActivity;
-import android.view.Window;
 import android.widget.RelativeLayout;
-
 import com.reactnativenavigation.animation.VisibilityAnimator;
-
 import com.reactnativenavigation.params.ScreenParams;
 import com.reactnativenavigation.params.StyleParams;
 import com.reactnativenavigation.params.TitleBarButtonParams;
-import com.reactnativenavigation.params.TitleBarLeftButtonParams;
 import com.reactnativenavigation.utils.ViewUtils;
+import com.reactnativenavigation.views.ContentView;
 import com.reactnativenavigation.views.LeftButtonOnClickListener;
 import com.reactnativenavigation.views.TopBar;
 
@@ -23,33 +16,28 @@ import java.util.List;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
-public abstract class Screen extends RelativeLayout {
+public class Screen extends RelativeLayout {
 
     public interface OnDisplayListener {
         void onDisplay();
     }
 
-    protected final AppCompatActivity activity;
     public final ScreenParams screenParams;
-    protected TopBar topBar;
-    private final LeftButtonOnClickListener leftButtonOnClickListener;
-    private VisibilityAnimator topBarVisibilityAnimator;
-    protected final StyleParams styleParams;
+    public TopBar topBar;
+    public final LeftButtonOnClickListener leftButtonOnClickListener;
+    public VisibilityAnimator topBarVisibilityAnimator;
+    public final StyleParams styleParams;
+    public ContentView contentView;
 
     public Screen(AppCompatActivity activity, ScreenParams screenParams, LeftButtonOnClickListener leftButtonOnClickListener) {
         super(activity);
-        this.activity = activity;
         this.screenParams = screenParams;
         styleParams = screenParams.styleParams;
         this.leftButtonOnClickListener = leftButtonOnClickListener;
         createViews();
     }
 
-
-
     public void setStyle() {
-        setStatusBarColor(styleParams.statusBarColor);
-        setNavigationBarColor(styleParams.navigationBarColor);
         topBar.setStyle(styleParams);
         if (styleParams.screenBackgroundColor.hasColor()) {
             setBackgroundColor(styleParams.screenBackgroundColor.getColor());
@@ -61,8 +49,6 @@ public abstract class Screen extends RelativeLayout {
         createTitleBar();
         createContent();
     }
-
-    protected abstract void createContent();
 
     private void createTitleBar() {
         addTitleBarButtons();
@@ -97,7 +83,6 @@ public abstract class Screen extends RelativeLayout {
     }
 
     private void createTopBarVisibilityAnimator() {
-
         ViewUtils.runOnPreDraw(topBar, new Runnable() {
             @Override
             public void run() {
@@ -110,78 +95,8 @@ public abstract class Screen extends RelativeLayout {
         });
     }
 
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    private void setStatusBarColor(StyleParams.Color statusBarColor) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) return;
 
-        final Activity context = (Activity) getContext();
-        final Window window = context.getWindow();
-        if (statusBarColor.hasColor()) {
-            window.setStatusBarColor(statusBarColor.getColor());
-        } else {
-            window.setStatusBarColor(Color.BLACK);
-        }
-    }
-
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    public void setNavigationBarColor(StyleParams.Color navigationBarColor) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) return;
-
-        final Activity context = (Activity) getContext();
-        final Window window = context.getWindow();
-        if (navigationBarColor.hasColor()) {
-            window.setNavigationBarColor(navigationBarColor.getColor());
-        } else {
-            window.setNavigationBarColor(Color.BLACK);
-        }
-    }
-
-    public abstract void unmountReactView();
-
-    public String getScreenInstanceId() {
-        return screenParams.getScreenInstanceId();
-    }
-
-    public abstract String getNavigatorEventId();
-
-    public ScreenParams getScreenParams() {
-        return screenParams;
-    }
-
-    public void setTopBarVisible(boolean visible, boolean animate) {
-        topBarVisibilityAnimator.setVisible(visible, animate);
-    }
-
-    public void setTitleBarTitle(String title) {
-        topBar.setTitle(title);
-    }
-
-    public void setTitleBarSubtitle(String subtitle) {
-        topBar.setSubtitle(subtitle);
-    }
-
-    public void setTitleBarRightButtons(String navigatorEventId, List<TitleBarButtonParams> titleBarButtons) {
-        setButtonColorFromScreen(titleBarButtons);
-        topBar.setTitleBarRightButtons(navigatorEventId, titleBarButtons);
-    }
-
-    public void setTitleBarLeftButton(String navigatorEventId, LeftButtonOnClickListener backButtonListener,
-                                      TitleBarLeftButtonParams titleBarLeftButtonParams) {
-        topBar.setTitleBarLeftButton(navigatorEventId,
-                backButtonListener,
-                titleBarLeftButtonParams,
-                screenParams.overrideBackPressInJs);
-    }
-
-    public void enableRightButton(boolean enabled) {
-        topBar.enableRightButton(enabled);
-    }
-
-    public StyleParams getStyleParams() {
-        return screenParams.styleParams;
-    }
-
-    private void setButtonColorFromScreen(List<TitleBarButtonParams> titleBarButtonParams) {
+    public void setButtonColorFromScreen(List<TitleBarButtonParams> titleBarButtonParams) {
         if (titleBarButtonParams == null) {
             return;
         }
@@ -191,11 +106,17 @@ public abstract class Screen extends RelativeLayout {
         }
     }
 
-    public abstract void setOnDisplayListener(OnDisplayListener onContentViewDisplayedListener);
+    protected void createContent() {
+        contentView = new ContentView(getContext(), screenParams.screenId,
+                screenParams.navigationParams, screenParams.passProps);
+        addView(contentView, 0, createLayoutParams());
+    }
 
-
-    public void destroy() {
-        unmountReactView();
-
+    protected LayoutParams createLayoutParams() {
+        LayoutParams params = new LayoutParams(MATCH_PARENT, MATCH_PARENT);
+        if (screenParams.styleParams.drawScreenBelowTopBar) {
+            params.addRule(BELOW, topBar.getId());
+        }
+        return params;
     }
 }
