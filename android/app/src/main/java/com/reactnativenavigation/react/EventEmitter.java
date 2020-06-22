@@ -1,40 +1,29 @@
 package com.reactnativenavigation.react;
 
 import com.facebook.react.bridge.WritableMap;
+import com.reactnativenavigation.bridge.NavigationReactEventEmitter;
 
 
 public class EventEmitter implements com.reactnativenavigation.bridge.EventEmitter{
-    private ReactGateway reactGateway;
+    private NavigationReactEventEmitter reactEventEmitter;
 
-    public EventEmitter(ReactGateway reactGateway) {
-        this.reactGateway = reactGateway;
+    public EventEmitter(NavigationReactEventEmitter reactEventEmitter) {
+        this.reactEventEmitter = reactEventEmitter;
     }
 
     public void sendNavigatorEvent(String eventId, String navigatorEventId) {
-        if (!NavigationApplication.instance.isReactContextInitialized()) {
-            return;
-        }
-        reactGateway.getReactEventEmitter().sendNavigatorEvent(eventId, navigatorEventId);
+        reactEventEmitter.sendNavigatorEvent(eventId, navigatorEventId);
     }
 
     public void sendNavigatorEvent(String eventId, String navigatorEventId, WritableMap data) {
-        if (!NavigationApplication.instance.isReactContextInitialized()) {
-            return;
-        }
-        reactGateway.getReactEventEmitter().sendNavigatorEvent(eventId, navigatorEventId, data);
+        reactEventEmitter.sendNavigatorEvent(eventId, navigatorEventId, data);
     }
 
     public void sendEvent(String eventId, String navigatorEventId) {
-        if (!NavigationApplication.instance.isReactContextInitialized()) {
-            return;
-        }
-        reactGateway.getReactEventEmitter().sendEvent(eventId, navigatorEventId);
+        reactEventEmitter.sendEvent(eventId, navigatorEventId);
     }
 
     public void sendNavigatorEvent(String eventId, WritableMap arguments) {
-        if (!NavigationApplication.instance.isReactContextInitialized()) {
-            return;
-        }
-        reactGateway.getReactEventEmitter().sendEvent(eventId, arguments);
+        reactEventEmitter.sendEvent(eventId, arguments);
     }
 }

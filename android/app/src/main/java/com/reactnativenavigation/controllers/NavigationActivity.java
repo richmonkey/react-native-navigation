@@ -13,6 +13,10 @@ import android.view.View;
 import android.view.Window;
 import android.widget.RelativeLayout;
 
+import com.facebook.react.ReactApplication;
+import com.facebook.react.ReactDelegate;
+import com.facebook.react.ReactNativeHost;
+import com.facebook.react.ReactRootView;
 import com.facebook.react.modules.core.DefaultHardwareBackBtnHandler;
 import com.facebook.react.modules.core.PermissionAwareActivity;
 import com.facebook.react.modules.core.PermissionListener;
@@ -24,7 +28,6 @@ import com.reactnativenavigation.params.ActivityParams;
 import com.reactnativenavigation.params.AppStyle;
 import com.reactnativenavigation.params.TitleBarButtonParams;
 import com.reactnativenavigation.params.TitleBarLeftButtonParams;
-import com.reactnativenavigation.react.JsDevReloadHandler;
 import com.reactnativenavigation.screens.Screen;
 import com.reactnativenavigation.views.LeftButtonOnClickListener;
 
@@ -59,6 +62,8 @@ public class NavigationActivity extends AppCompatActivity implements DefaultHard
     private Screen screen;
     @Nullable protected PermissionListener mPermissionListener;
 
+    private ReactDelegate mReactDelegate;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -74,10 +79,37 @@ public class NavigationActivity extends AppCompatActivity implements DefaultHard
         NavigationCommandsHandler.registerNavigationActivity(this, activityParams.screenParams.navigationParams.navigatorId);
         NavigationCommandsHandler.registerActivity(this, activityParams.screenParams.navigationParams.screenInstanceId);
 
-        createLayout();
-
         setStatusBarColor(activityParams.screenParams.styleParams.statusBarColor);
         setNavigationBarColor(activityParams.screenParams.styleParams.navigationBarColor);
+
+
+        createLayout();
+
+        String mainComponentName = activityParams.screenParams.screenId;
+        mReactDelegate =
+                new ReactDelegate(this, getReactNativeHost(), mainComponentName, getLaunchOptions()) {
+                    @Override
+                    protected ReactRootView createRootView() {
+                        return screen.contentView;
+                    }
+                };
+
+        if (mainComponentName != null) {
+            mReactDelegate.loadApp(mainComponentName);
+        }
+    }
+
+    protected @Nullable Bundle getLaunchOptions() {
+        Bundle bundle = activityParams.screenParams.navigationParams.toBundle();
+        if (activityParams.screenParams.passProps != null) {
+            bundle.putAll(activityParams.screenParams.passProps);
+        }
+        return bundle;
+    }
+
+
+    protected ReactNativeHost getReactNativeHost() {
+        return ((ReactApplication) getApplication()).getReactNativeHost();
     }
 
 
@@ -85,10 +117,9 @@ public class NavigationActivity extends AppCompatActivity implements DefaultHard
         layout = new RelativeLayout(this);
         RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT);
 
-        Screen  initialScreen = new Screen(this, activityParams.screenParams, this);
-        initialScreen.setVisibility(View.INVISIBLE);
-        layout.addView(initialScreen, layout.getChildCount() - 1, lp);
-        screen = initialScreen;
+        screen = new Screen(this, activityParams.screenParams, this);
+        screen.setVisibility(View.INVISIBLE);
+        layout.addView(screen, layout.getChildCount() - 1, lp);
         screen.setStyle();
         screen.setVisibility(View.VISIBLE);
 
@@ -105,43 +136,91 @@ public class NavigationActivity extends AppCompatActivity implements DefaultHard
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
-
-    }
-
-    @Override
     protected void onResume() {
         super.onResume();
-        if (isFinishing() || !NavigationApplication.instance.isReactContextInitialized()) {
-            return;
-        }
-
         currentActivity = this;
-        NavigationApplication.instance.getReactGateway().onResumeActivity(this, this);
+        mReactDelegate.onHostResume();
     }
-
 
     @Override
     protected void onPause() {
         super.onPause();
         currentActivity = null;
-        NavigationApplication.instance.getReactGateway().onPauseActivity();
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
+        mReactDelegate.onHostPause();
     }
 
     @Override
     protected void onDestroy() {
+        super.onDestroy();
         NavigationCommandsHandler.unregisterNavigationActivity(this, activityParams.screenParams.navigationParams.navigatorId);
         NavigationCommandsHandler.unregisterActivity(activityParams.screenParams.navigationParams.screenInstanceId);
-
-        destroyLayouts();
-        super.onDestroy();
+        mReactDelegate.onHostDestroy();
     }
+
+
+    @Override
+    public void invokeDefaultOnBackPressed() {
+        super.onBackPressed();
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (mReactDelegate.onBackPressed()) {
+            return;
+        }
+        super.onBackPressed();
+    }
+
+    @Override
+    public void onNewIntent(Intent intent) {
+        if (getReactNativeHost().hasInstance()) {
+            getReactNativeHost().getReactInstanceManager().onNewIntent(intent);
+            return;
+        }
+        super.onNewIntent(intent);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        mReactDelegate.onActivityResult(requestCode, resultCode, data, true);
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (getReactNativeHost().hasInstance()
+                && getReactNativeHost().getUseDeveloperSupport()
+                && keyCode == KeyEvent.KEYCODE_MEDIA_FAST_FORWARD) {
+            event.startTracking();
+            return true;
+        }
+
+        return super.onKeyDown(keyCode, event);
+    }
+
+    @Override
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
+        return mReactDelegate.shouldShowDevMenuOrReload(keyCode, event) || super.onKeyUp(keyCode, event);
+    }
+
+    @Override
+    public boolean onKeyLongPress(int keyCode, KeyEvent event) {
+        if (getReactNativeHost().hasInstance()
+                && getReactNativeHost().getUseDeveloperSupport()
+                && keyCode == KeyEvent.KEYCODE_MEDIA_FAST_FORWARD) {
+            getReactNativeHost().getReactInstanceManager().showDevOptionsDialog();
+            return true;
+        }
+
+        return super.onKeyLongPress(keyCode, event);
+    }
+
+
+    @Override
+    public boolean onTitleBarBackButtonClick() {
+        onBackPressed();
+        return true;
+    }
+
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private void setStatusBarColor(StyleParams.Color statusBarColor) {
@@ -166,46 +245,6 @@ public class NavigationActivity extends AppCompatActivity implements DefaultHard
         }
     }
 
-    private void destroyLayouts() {
-        if (layout != null) {
-            screen.contentView.unmountReactView();
-            layout.removeView(screen);
-            layout = null;
-        }
-    }
-
-    @Override
-    public void invokeDefaultOnBackPressed() {
-        super.onBackPressed();
-    }
-
-    @Override
-    public void onBackPressed() {
-        ScreenParams currentScreen = screen.screenParams;
-        if (currentScreen.overrideBackPressInJs) {
-            NavigationApplication.instance.getEventEmitter().sendNavigatorEvent("backPress", currentScreen.getNavigatorEventId());
-            return;
-        }
-        this.finish();
-        return;
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        NavigationApplication.instance.getReactGateway().onActivityResult(requestCode, resultCode, data);
-    }
-
-    @Override
-    public boolean onKeyUp(int keyCode, KeyEvent event) {
-        return JsDevReloadHandler.onKeyUp(getCurrentFocus(), keyCode) || super.onKeyUp(keyCode, event);
-    }
-
-    @Override
-    public boolean onTitleBarBackButtonClick() {
-        onBackPressed();
-        return true;
-    }
-
 
     //TODO all these setters should be combined to something like setStyle
     public void setTopBarVisible(String screenId, boolean visible, boolean animate) {
@@ -224,7 +263,6 @@ public class NavigationActivity extends AppCompatActivity implements DefaultHard
         screen.setButtonColorFromScreen(titleBarButtons);
         screen.topBar.setTitleBarRightButtons(navigatorEventId, titleBarButtons);
     }
-
     void setTitleBarButtons(String screenInstanceId, final String navigatorEventId, final List<TitleBarButtonParams> titleBarButtons) {
         this.setTitleBarRightButtons(screenInstanceId, navigatorEventId, titleBarButtons);
     }

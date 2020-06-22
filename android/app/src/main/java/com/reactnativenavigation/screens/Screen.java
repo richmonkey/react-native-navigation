@@ -2,12 +2,13 @@ package com.reactnativenavigation.screens;
 
 import androidx.appcompat.app.AppCompatActivity;
 import android.widget.RelativeLayout;
+
+import com.facebook.react.ReactRootView;
 import com.reactnativenavigation.animation.VisibilityAnimator;
 import com.reactnativenavigation.params.ScreenParams;
 import com.reactnativenavigation.params.StyleParams;
 import com.reactnativenavigation.params.TitleBarButtonParams;
 import com.reactnativenavigation.utils.ViewUtils;
-import com.reactnativenavigation.views.ContentView;
 import com.reactnativenavigation.views.LeftButtonOnClickListener;
 import com.reactnativenavigation.views.TopBar;
 
@@ -18,16 +19,12 @@ import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
 public class Screen extends RelativeLayout {
 
-    public interface OnDisplayListener {
-        void onDisplay();
-    }
-
     public final ScreenParams screenParams;
     public TopBar topBar;
     public final LeftButtonOnClickListener leftButtonOnClickListener;
     public VisibilityAnimator topBarVisibilityAnimator;
     public final StyleParams styleParams;
-    public ContentView contentView;
+    public ReactRootView contentView;
 
     public Screen(AppCompatActivity activity, ScreenParams screenParams, LeftButtonOnClickListener leftButtonOnClickListener) {
         super(activity);
@@ -107,8 +104,7 @@ public class Screen extends RelativeLayout {
     }
 
     protected void createContent() {
-        contentView = new ContentView(getContext(), screenParams.screenId,
-                screenParams.navigationParams, screenParams.passProps);
+        contentView = new ReactRootView(getContext());
         addView(contentView, 0, createLayoutParams());
     }
 
