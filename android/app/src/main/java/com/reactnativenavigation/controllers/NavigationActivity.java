@@ -16,6 +16,7 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.Window;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import com.facebook.react.ReactApplication;
 import com.facebook.react.ReactDelegate;
@@ -43,8 +44,8 @@ import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 public class NavigationActivity extends AppCompatActivity implements DefaultHardwareBackBtnHandler,
         PermissionAwareActivity, LeftButtonOnClickListener {
 
-    private final int OVERLAY_PERMISSION_REQ_CODE = 1;
-    private final String TAG = "react-native-navigation";
+    private final static int OVERLAY_PERMISSION_REQ_CODE = 1;
+    private final static String TAG = "react-native-navigation";
     public static long _id = 0;
 
 
@@ -75,12 +76,8 @@ public class NavigationActivity extends AppCompatActivity implements DefaultHard
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (!Settings.canDrawOverlays(this)) {
-                Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                        Uri.parse("package:" + getPackageName()));
-                startActivityForResult(intent, OVERLAY_PERMISSION_REQ_CODE);
-            }
+        if (shouldAskPermission()) {
+            askPermission();
         }
 
         //set default app style
@@ -99,6 +96,30 @@ public class NavigationActivity extends AppCompatActivity implements DefaultHard
             screen.contentView.startReactApplication(mReactInstanceManager, mainComponentName, getLaunchOptions());
         }
     }
+
+    public static boolean shouldAskPermission() {
+        return NavigationApplication.instance.isDebug() &&
+                Build.VERSION.SDK_INT >= 23 &&
+                !Settings.canDrawOverlays(NavigationApplication.instance);
+    }
+
+
+    @TargetApi(23)
+    public void askPermission() {
+        if (shouldAskPermission()) {
+            Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                    Uri.parse("package:" + getPackageName()));
+            startActivityForResult(intent, OVERLAY_PERMISSION_REQ_CODE);
+            String msg = "Overlay permissions needs to be granted in order for react native apps to run in dev mode";
+            Log.w(TAG, "======================================\n\n");
+            Log.w(TAG, msg);
+            Log.w(TAG, "\n\n======================================");
+            for (int i = 0; i < 5; i++) {
+                Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
+            }
+        }
+    }
+
 
     protected @Nullable Bundle getLaunchOptions() {
         Bundle bundle = activityParams.screenParams.navigationParams.toBundle();
