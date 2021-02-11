@@ -5,9 +5,10 @@ import {
     processColor    
   } from 'react-native';
 import PropRegistry from './PropRegistry';
-import ComponentRegistry from './ComponentRegistry';
+import ScreenRegistry from "./ScreenRegistry";
 import _ from 'lodash';
 import platformSpecific from './platformSpecificDeprecated';
+
 import {processButtons as _processButtons, processProperties as _processProperties} from './util';
 var resolveAssetSource = require('react-native/Libraries/Image/resolveAssetSource');
 
@@ -22,7 +23,7 @@ function savePassProps(screenInstanceID, passProps) {
 
   
 function _mergeScreenSpecificSettings(screenID, screenInstanceID, params) {
-    const screenClass = ComponentRegistry.getRegisteredScreen(screenID);
+    const screenClass = ScreenRegistry.getRegisteredScreen(screenID);
     if (!screenClass) {
         console.error('Cannot create screen ' + screenID + '. Are you it was registered with ComponentRegistry.registerScreen?');
         return;
