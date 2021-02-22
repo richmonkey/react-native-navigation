@@ -88,6 +88,9 @@ static volatile int64_t _id = 0;
 {
     [super viewDidLoad];
     
+    if (@available(iOS 13.0,*)) {
+        self.view.backgroundColor = [UIColor systemBackgroundColor];
+    }
     self.edgesForExtendedLayout = UIRectEdgeNone; // default
     self.automaticallyAdjustsScrollViewInsets = NO; // default
 }
