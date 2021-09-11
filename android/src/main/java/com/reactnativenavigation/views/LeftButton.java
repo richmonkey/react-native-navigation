@@ -6,6 +6,7 @@ import android.view.View;
 
 import com.balysv.materialmenu.MaterialMenuDrawable;
 import com.reactnativenavigation.NavigationApplication;
+import com.reactnativenavigation.controllers.NavigationCommandsHandler;
 import com.reactnativenavigation.params.TitleBarButtonParams;
 import com.reactnativenavigation.params.TitleBarLeftButtonParams;
 
@@ -54,7 +55,7 @@ class LeftButton extends MaterialMenuDrawable implements View.OnClickListener {
 
     private void handleBackButtonClick() {
         if (overrideBackPressInJs) {
-            NavigationApplication.instance.getEventEmitter().sendNavigatorEvent("backPress", navigatorEventId);
+            NavigationCommandsHandler.navigationApplication.getEventEmitter().sendNavigatorEvent("backPress", navigatorEventId);
         } else {
             onClickListener.onTitleBarBackButtonClick();
         }
@@ -74,6 +75,6 @@ class LeftButton extends MaterialMenuDrawable implements View.OnClickListener {
 
 
     private void sendClickEvent() {
-        NavigationApplication.instance.getEventEmitter().sendNavigatorEvent(params.eventId, navigatorEventId);
+        NavigationCommandsHandler.navigationApplication.getEventEmitter().sendNavigatorEvent(params.eventId, navigatorEventId);
     }
 }

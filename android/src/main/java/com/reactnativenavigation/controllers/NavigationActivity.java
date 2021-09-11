@@ -26,10 +26,10 @@ import com.facebook.react.ReactRootView;
 import com.facebook.react.modules.core.DefaultHardwareBackBtnHandler;
 import com.facebook.react.modules.core.PermissionAwareActivity;
 import com.facebook.react.modules.core.PermissionListener;
+import com.reactnativenavigation.NavigationApplication;
 import com.reactnativenavigation.params.ScreenParams;
 import com.reactnativenavigation.params.StyleParams;
 import com.reactnativenavigation.params.parsers.StyleParamsParser;
-import com.reactnativenavigation.react.NavigationApplication;
 import com.reactnativenavigation.params.ActivityParams;
 import com.reactnativenavigation.params.AppStyle;
 import com.reactnativenavigation.params.TitleBarButtonParams;
@@ -97,10 +97,9 @@ public class NavigationActivity extends AppCompatActivity implements DefaultHard
         }
     }
 
-    public static boolean shouldAskPermission() {
-        return NavigationApplication.instance.isDebug() &&
-                Build.VERSION.SDK_INT >= 23 &&
-                !Settings.canDrawOverlays(NavigationApplication.instance);
+    public boolean shouldAskPermission() {
+        NavigationApplication app = (NavigationApplication)getApplication();
+        return (app.isDebug() && Build.VERSION.SDK_INT >= 23 && !Settings.canDrawOverlays(getApplication()));
     }
 
 

@@ -18,6 +18,7 @@ import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.WritableMap;
 import com.reactnativenavigation.NavigationApplication;
 import com.reactnativenavigation.R;
+import com.reactnativenavigation.controllers.NavigationCommandsHandler;
 import com.reactnativenavigation.params.TitleBarButtonParams;
 import com.reactnativenavigation.utils.ReflectionUtils;
 import com.reactnativenavigation.utils.ViewUtils;
@@ -147,10 +148,10 @@ class TitleBarSearchButton extends TitleBarButton implements SearchView.OnQueryT
     }
 
     private void sendEvent(String eventId, WritableMap arguments) {
-        NavigationApplication.instance.getEventEmitter().sendNavigatorEvent(eventId, navigatorEventId, arguments);
+        NavigationCommandsHandler.navigationApplication.getEventEmitter().sendNavigatorEvent(eventId, navigatorEventId, arguments);
     }
 
     private void sendEvent(String eventId) {
-        NavigationApplication.instance.getEventEmitter().sendNavigatorEvent(eventId, navigatorEventId);
+        NavigationCommandsHandler.navigationApplication.getEventEmitter().sendNavigatorEvent(eventId, navigatorEventId);
     }
 }

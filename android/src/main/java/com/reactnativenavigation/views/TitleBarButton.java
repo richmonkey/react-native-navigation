@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.reactnativenavigation.NavigationApplication;
+import com.reactnativenavigation.controllers.NavigationCommandsHandler;
 import com.reactnativenavigation.params.TitleBarButtonParams;
 import com.reactnativenavigation.utils.ViewUtils;
 
@@ -92,7 +93,7 @@ class TitleBarButton implements MenuItem.OnMenuItemClickListener {
 
     @Override
     public boolean onMenuItemClick(MenuItem item) {
-        NavigationApplication.instance.getEventEmitter().sendNavigatorEvent(buttonParams.eventId, navigatorEventId);
+        NavigationCommandsHandler.navigationApplication.getEventEmitter().sendNavigatorEvent(buttonParams.eventId, navigatorEventId);
         return true;
     }
 }

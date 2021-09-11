@@ -1,11 +1,12 @@
 package com.reactnativenavigation.controllers;
 
 import android.app.Activity;
+import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
-import com.reactnativenavigation.react.NavigationApplication;
+import com.reactnativenavigation.NavigationApplication;
 import com.reactnativenavigation.params.ActivityParams;
 import com.reactnativenavigation.params.ScreenParams;
 import com.reactnativenavigation.params.TitleBarButtonParams;
@@ -40,6 +41,13 @@ public class NavigationCommandsHandler {
     }
 
     private static HashMap<String, Navigator> navigators = new HashMap<>();
+
+    public static Application application;
+    public static NavigationApplication navigationApplication;
+    public static void init(Application app) {
+        application = app;
+        navigationApplication = (NavigationApplication)app;
+    }
 
     public static void registerNavigationActivity(Activity activity, String navigatorID) {
         if (!navigators.containsKey(navigatorID)) {
@@ -103,7 +111,7 @@ public class NavigationCommandsHandler {
     public static void push(final Bundle screenParams, final boolean portraitOnlyMode,
                             final boolean landscapeOnlyMode, final String navigatorID,
                             final String screen) {
-        NavigationApplication.instance.runOnMainThread(new Runnable() {
+        navigationApplication.runOnMainThread(new Runnable() {
             @Override
             public void run() {
                 if (navigators.containsKey(navigatorID)) {
@@ -112,7 +120,7 @@ public class NavigationCommandsHandler {
                     if (nav.activities.size() > 0) {
                         context = nav.activities.get(nav.activities.size() - 1);
                     } else {
-                        context = NavigationApplication.instance;
+                        context = application;
                     }
 
                     Intent intent;
@@ -138,7 +146,7 @@ public class NavigationCommandsHandler {
                     } else {
                         intent = new Intent(context, NavigationActivity.class);
                     }
-                    if (context == NavigationApplication.instance) {
+                    if (context == application) {
                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     }
                     intent.putExtra(ACTIVITY_PARAMS_BUNDLE, screenParams);
@@ -156,7 +164,7 @@ public class NavigationCommandsHandler {
         }
 
         final ScreenParams params = ScreenParamsParser.parse(screenParams);
-        NavigationApplication.instance.runOnMainThread(new Runnable() {
+        navigationApplication.runOnMainThread(new Runnable() {
             @Override
             public void run() {
                 currentActivity.finish();
@@ -166,7 +174,7 @@ public class NavigationCommandsHandler {
 
     public static void popToRoot(Bundle screenParams) {
         final ScreenParams params = ScreenParamsParser.parse(screenParams);
-        com.reactnativenavigation.NavigationApplication.instance.runOnMainThread(new Runnable() {
+        navigationApplication.runOnMainThread(new Runnable() {
             @Override
             public void run() {
                 String navigatorID = params.getNavigatorId();
@@ -186,7 +194,7 @@ public class NavigationCommandsHandler {
         Intent intent;
         if (activitieClasses.containsKey(screen)) {
             Class<?> cls = activitieClasses.get(screen);
-            intent = new Intent(NavigationApplication.instance, cls);
+            intent = new Intent(application, cls);
             try {
                 Method method = cls.getMethod("convertBundle", Bundle.class, Intent.class);
                 method.invoke(null, screenParams, intent);
@@ -198,15 +206,15 @@ public class NavigationCommandsHandler {
                 e.printStackTrace();
             }
         } else if (portraitOnlyMode) {
-            intent = new Intent(NavigationApplication.instance, PortraitNavigationActivity.class);
+            intent = new Intent(application, PortraitNavigationActivity.class);
         } else if (landscapeOnlyMode) {
-            intent = new Intent(NavigationApplication.instance, LandscapeNavigationActivity.class);
+            intent = new Intent(application, LandscapeNavigationActivity.class);
         } else {
-            intent = new Intent(NavigationApplication.instance, NavigationActivity.class);
+            intent = new Intent(application, NavigationActivity.class);
         }
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.putExtra(ACTIVITY_PARAMS_BUNDLE, screenParams);
-        NavigationApplication.instance.startActivity(intent);
+        application.startActivity(intent);
     }
 
     public static void dismissTopModal() {
@@ -214,7 +222,7 @@ public class NavigationCommandsHandler {
         if (currentActivity == null) {
             return;
         }
-        NavigationApplication.instance.runOnMainThread(new Runnable() {
+        navigationApplication.runOnMainThread(new Runnable() {
             @Override
             public void run() {
                 currentActivity.finish();
@@ -228,7 +236,7 @@ public class NavigationCommandsHandler {
             return;
         }
 
-        NavigationApplication.instance.runOnMainThread(new Runnable() {
+        navigationApplication.runOnMainThread(new Runnable() {
             @Override
             public void run() {
                 currentActivity.setTopBarVisible(screenInstanceID, hidden, animated);
@@ -242,7 +250,7 @@ public class NavigationCommandsHandler {
             return;
         }
 
-        NavigationApplication.instance.runOnMainThread(new Runnable() {
+        navigationApplication.runOnMainThread(new Runnable() {
             @Override
             public void run() {
                 currentActivity.setTitleBarTitle(screenInstanceId, title);
@@ -256,7 +264,7 @@ public class NavigationCommandsHandler {
             return;
         }
 
-        NavigationApplication.instance.runOnMainThread(new Runnable() {
+        navigationApplication.runOnMainThread(new Runnable() {
             @Override
             public void run() {
                 currentActivity.setTitleBarSubtitle(screenInstanceId, subtitle);
@@ -273,7 +281,7 @@ public class NavigationCommandsHandler {
             return;
         }
 
-        NavigationApplication.instance.runOnMainThread(new Runnable() {
+        navigationApplication.runOnMainThread(new Runnable() {
             @Override
             public void run() {
                 currentActivity.setTitleBarButtons(screenInstanceId, navigatorEventId, titleBarButtons);
@@ -289,7 +297,7 @@ public class NavigationCommandsHandler {
             return;
         }
 
-        NavigationApplication.instance.runOnMainThread(new Runnable() {
+        navigationApplication.runOnMainThread(new Runnable() {
             @Override
             public void run() {
                 currentActivity.setTitleBarLeftButton(screenInstanceId, navigatorEventId, titleBarButtons);
@@ -303,7 +311,7 @@ public class NavigationCommandsHandler {
             return;
         }
 
-        NavigationApplication.instance.runOnMainThread(new Runnable() {
+        navigationApplication.runOnMainThread(new Runnable() {
             @Override
             public void run() {
                 currentActivity.enableRightButton(screenInstanceId, enabled);
@@ -318,7 +326,7 @@ public class NavigationCommandsHandler {
             return;
         }
 
-        NavigationApplication.instance.runOnMainThread(new Runnable() {
+        navigationApplication.runOnMainThread(new Runnable() {
             @Override
             public void run() {
                 Intent intent = new Intent();

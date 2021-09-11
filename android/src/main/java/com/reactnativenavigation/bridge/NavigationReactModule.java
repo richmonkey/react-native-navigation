@@ -134,6 +134,8 @@ public class NavigationReactModule extends ReactContextBaseJavaModule {
             Bundle props = BundleConverter.passPropsToBundle(passProps);
             bundle.putBundle("passProps", props);
         }
+
+        getReactApplicationContext();
         NavigationCommandsHandler.push(bundle, portraitOnlyMode, landscapeOnlyMode, navigatorID, screen);
     }
 

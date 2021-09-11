@@ -8,6 +8,7 @@ import android.os.StrictMode;
 import androidx.annotation.NonNull;
 
 import com.reactnativenavigation.NavigationApplication;
+import com.reactnativenavigation.controllers.NavigationCommandsHandler;
 
 import java.io.IOException;
 import java.net.URL;
@@ -32,6 +33,6 @@ public class JsDevImageLoader {
     private static Drawable tryLoadIcon(String iconDevUri) throws IOException {
         URL url = new URL(iconDevUri);
         Bitmap bitmap = BitmapFactory.decodeStream(url.openStream());
-        return new BitmapDrawable(NavigationApplication.instance.getResources(), bitmap);
+        return new BitmapDrawable(NavigationCommandsHandler.application.getResources(), bitmap);
     }
 }

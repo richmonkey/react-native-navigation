@@ -42,6 +42,7 @@ public class ViewUtils {
                 PorterDuff.Mode.SRC_IN));
     }
 
+    /*
     public static float convertDpToPixel(float dp) {
         float scale = NavigationApplication.instance.getResources().getDisplayMetrics().density;
         return dp * scale + 0.5f;
@@ -56,6 +57,7 @@ public class ViewUtils {
         float scaledDensity = NavigationApplication.instance.getResources().getDisplayMetrics().scaledDensity;
         return pixels * scaledDensity;
     }
+*/
 
     public static int generateViewId() {
         if (Build.VERSION.SDK_INT >= 17) {
@@ -64,13 +66,14 @@ public class ViewUtils {
             return compatGenerateViewId();
         }
     }
-
+/*
     public static float getScreenHeight() {
         WindowManager wm = (WindowManager) NavigationApplication.instance.getSystemService(Context.WINDOW_SERVICE);
         DisplayMetrics metrics = new DisplayMetrics();
         wm.getDefaultDisplay().getMetrics(metrics);
         return metrics.heightPixels;
     }
+*/
 
     private static int compatGenerateViewId() {
         for (; ; ) {
