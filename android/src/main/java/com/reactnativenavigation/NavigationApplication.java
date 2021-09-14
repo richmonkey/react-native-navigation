@@ -13,5 +13,4 @@ public interface NavigationApplication {
     public ReactContext getReactContext();
     public EventEmitter getEventEmitter();
     public boolean isDebug();
-
 }

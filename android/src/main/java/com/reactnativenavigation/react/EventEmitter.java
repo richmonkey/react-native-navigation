@@ -14,16 +14,4 @@ public class EventEmitter implements com.reactnativenavigation.bridge.EventEmitt
     public void sendNavigatorEvent(String eventId, String navigatorEventId) {
         reactEventEmitter.sendNavigatorEvent(eventId, navigatorEventId);
     }
-
-    public void sendNavigatorEvent(String eventId, String navigatorEventId, WritableMap data) {
-        reactEventEmitter.sendNavigatorEvent(eventId, navigatorEventId, data);
-    }
-
-    public void sendEvent(String eventId, String navigatorEventId) {
-        reactEventEmitter.sendEvent(eventId, navigatorEventId);
-    }
-
-    public void sendNavigatorEvent(String eventId, WritableMap arguments) {
-        reactEventEmitter.sendEvent(eventId, arguments);
-    }
 }

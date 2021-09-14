@@ -8,11 +8,13 @@ import com.reactnativenavigation.params.TitleBarButtonParams;
 class ButtonFactory {
 
     public static TitleBarButton create(Menu menu, View parent, TitleBarButtonParams params, String navigatorEventId) {
+        return new TitleBarButton(menu, parent, params, navigatorEventId);
+        /*
         switch (params.eventId) {
             case TitleBarSearchButton.BUTTON_ID:
                 return new TitleBarSearchButton(menu, parent, params, navigatorEventId);
             default:
                 return new TitleBarButton(menu, parent, params, navigatorEventId);
-        }
+        }*/
     }
 }

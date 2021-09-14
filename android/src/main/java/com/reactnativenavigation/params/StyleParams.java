@@ -41,12 +41,15 @@ public class StyleParams {
     public boolean drawScreenBelowTopBar;
     public boolean titleBarHidden;
     public boolean titleBarHideOnScroll;
+
     public boolean topBarTransparent;
     public boolean topBarTranslucent;
     public Color titleBarTitleColor;
     public Color titleBarSubtitleColor;
     public Color titleBarButtonColor;
     public Color titleBarDisabledButtonColor;
+
+
     public boolean backButtonHidden;
     public Color screenBackgroundColor;
     public Color navigationBarColor;

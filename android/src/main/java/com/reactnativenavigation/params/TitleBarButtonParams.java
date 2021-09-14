@@ -17,9 +17,7 @@ public class TitleBarButtonParams {
         }
     }
 
-
     public ShowAsAction showAsAction;
-
 
     public String eventId;
     public StyleParams.Color color;
@@ -27,23 +25,8 @@ public class TitleBarButtonParams {
     public boolean enabled = true;
     public String hint;
 
-
-
-
-    //public String eventId;
     public String label;
     public Drawable icon;
-//    public StyleParams.Color color;
-//    public StyleParams.Color disabledColor;
-
-//    public boolean enabled = true;
-//
-//    public void setColorFromScreenStyle(StyleParams.Color titleBarButtonColor) {
-//        if (!color.hasColor() && titleBarButtonColor.hasColor()) {
-//            color = titleBarButtonColor;
-//        }
-//    }
-
 
     public void setColorFromScreenStyle(StyleParams.Color titleBarButtonColor) {
         if (!color.hasColor() && titleBarButtonColor.hasColor()) {

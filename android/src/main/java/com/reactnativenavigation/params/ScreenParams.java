@@ -13,8 +13,12 @@ public class ScreenParams {
     public List<TitleBarButtonParams> rightButtons;
     public TitleBarLeftButtonParams leftButton;
 
+//    public StyleParams.Color screenBackgroundColor;
+//    public StyleParams.Color topBarColor;
+//    public StyleParams.Color titleBarButtonColor;
+//    public StyleParams.Color titleBarDisabledButtonColor;
+//    public boolean drawScreenBelowTopBar;
 
-    public boolean overrideBackPressInJs;
     public StyleParams styleParams;
 
     public Bundle passProps;

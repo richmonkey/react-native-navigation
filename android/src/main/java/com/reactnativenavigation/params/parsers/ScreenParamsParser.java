@@ -5,6 +5,8 @@ import android.os.Parcelable;
 
 import com.reactnativenavigation.params.NavigationParams;
 import com.reactnativenavigation.params.ScreenParams;
+import com.reactnativenavigation.params.StyleParams;
+
 import java.util.Set;
 
 public class ScreenParamsParser extends Parser {
@@ -23,13 +25,10 @@ public class ScreenParamsParser extends Parser {
         result.screenId = params.getString(KEY_SCREEN_ID);
         assertKeyExists(params, KEY_NAVIGATION_PARAMS);
         result.navigationParams = new NavigationParams(params.getBundle(KEY_NAVIGATION_PARAMS));
-
         result.styleParams = new StyleParamsParser(params.getBundle(STYLE_PARAMS)).parse();
-
         result.title = params.getString(KEY_TITLE);
         result.subtitle = params.getString(KEY_SUBTITLE);
         result.rightButtons = ButtonParser.parseRightButton(params);
-        result.overrideBackPressInJs = params.getBoolean(OVERRIDE_BACK_PRESS, false);
         result.leftButton = ButtonParser.parseLeftButton(params);
         result.passProps = params.getBundle(PASS_PROPS);
         covnertPassProps(result.passProps);

@@ -10,7 +10,6 @@ import java.util.List;
 public class ButtonParser extends Parser {
     private static final String KEY_RIGHT_BUTTONS = "rightButtons";
     private static final String KEY_LEFT_BUTTON = "leftButton";
-    private static final String KEY_FAB = "fab";
     private static final String KEY_BACK_BUTTON_HIDDEN = "backButtonHidden";
 
     public static List<TitleBarButtonParams> parseRightButton(Bundle params) {
@@ -24,7 +23,7 @@ public class ButtonParser extends Parser {
     public static TitleBarLeftButtonParams parseLeftButton(Bundle params) {
         TitleBarLeftButtonParams leftButton = null;
         if (hasKey(params, KEY_LEFT_BUTTON)) {
-            leftButton =  new TitleBarLeftButtonParamsParser().parseSingleButton(params.getBundle(KEY_LEFT_BUTTON));
+            leftButton = new TitleBarLeftButtonParamsParser().parseSingleButton(params.getBundle(KEY_LEFT_BUTTON));
 
             boolean backButtonHidden = params.getBoolean(KEY_BACK_BUTTON_HIDDEN, false);
             if (backButtonHidden && leftButton.isBackButton()) {

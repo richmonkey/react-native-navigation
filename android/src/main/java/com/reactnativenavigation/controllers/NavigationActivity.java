@@ -1,33 +1,13 @@
 package com.reactnativenavigation.controllers;
 
 import android.annotation.TargetApi;
-import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-
-import android.provider.Settings;
-import android.util.Log;
-import android.view.KeyEvent;
 import android.view.View;
 import android.view.Window;
-import android.widget.RelativeLayout;
-import android.widget.Toast;
-
-import com.facebook.react.ReactApplication;
-import com.facebook.react.ReactDelegate;
-import com.facebook.react.ReactInstanceManager;
-import com.facebook.react.ReactNativeHost;
-import com.facebook.react.ReactRootView;
-import com.facebook.react.modules.core.DefaultHardwareBackBtnHandler;
-import com.facebook.react.modules.core.PermissionAwareActivity;
-import com.facebook.react.modules.core.PermissionListener;
-import com.reactnativenavigation.NavigationApplication;
-import com.reactnativenavigation.params.ScreenParams;
 import com.reactnativenavigation.params.StyleParams;
 import com.reactnativenavigation.params.parsers.StyleParamsParser;
 import com.reactnativenavigation.params.ActivityParams;
@@ -36,18 +16,18 @@ import com.reactnativenavigation.params.TitleBarButtonParams;
 import com.reactnativenavigation.params.TitleBarLeftButtonParams;
 import com.reactnativenavigation.screens.Screen;
 import com.reactnativenavigation.views.LeftButtonOnClickListener;
+import com.reactnativenavigation.views.TitleBar;
 
 import java.util.List;
 
-import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 
-public class NavigationActivity extends AppCompatActivity implements DefaultHardwareBackBtnHandler,
-        PermissionAwareActivity, LeftButtonOnClickListener {
-
-    private final static int OVERLAY_PERMISSION_REQ_CODE = 1;
-    private final static String TAG = "react-native-navigation";
+public class NavigationActivity extends ReactNavigationActivity implements LeftButtonOnClickListener {
     public static long _id = 0;
+    static NavigationActivity currentActivity;
 
+    private ActivityParams activityParams;
+    private Screen screen;
+    public TitleBar titleBar;
 
     public static String uniqueId(String prefix) {
         synchronized (NavigationActivity.class) {
@@ -55,30 +35,10 @@ public class NavigationActivity extends AppCompatActivity implements DefaultHard
             return String.format("%s%d", (prefix != null ? prefix : ""), newId);
         }
     }
-    /**
-     * Although we start multiple activities, we make sure to pass Intent.CLEAR_TASK | Intent.NEW_TASK
-     * So that we actually have only 1 instance of the activity running at one time.
-     * We hold the currentActivity (resume->pause) so we know when we need to destroy the javascript context
-     * (when currentActivity is null, ie pause and destroy was called without resume).
-     * This is somewhat weird, and in the future we better use a single activity with changing contentView similar to ReactNative impl.
-     * Along with that, we should handle commands from the bridge using onNewIntent
-     */
-    static NavigationActivity currentActivity;
-
-    private ActivityParams activityParams;
-    private RelativeLayout layout;
-    private Screen screen;
-    @Nullable protected PermissionListener mPermissionListener;
-
-    private ReactInstanceManager mReactInstanceManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        if (shouldAskPermission()) {
-            askPermission();
-        }
 
         //set default app style
         AppStyle.setAppStyle(new StyleParamsParser(null).parse());
@@ -89,36 +49,12 @@ public class NavigationActivity extends AppCompatActivity implements DefaultHard
         setStatusBarColor(activityParams.screenParams.styleParams.statusBarColor);
         setNavigationBarColor(activityParams.screenParams.styleParams.navigationBarColor);
         createLayout();
-        mReactInstanceManager = getReactNativeHost().getReactInstanceManager();
 
         String mainComponentName = activityParams.screenParams.screenId;
         if (mainComponentName != null) {
             screen.contentView.startReactApplication(mReactInstanceManager, mainComponentName, getLaunchOptions());
         }
     }
-
-    public boolean shouldAskPermission() {
-        NavigationApplication app = (NavigationApplication)getApplication();
-        return (app.isDebug() && Build.VERSION.SDK_INT >= 23 && !Settings.canDrawOverlays(getApplication()));
-    }
-
-
-    @TargetApi(23)
-    public void askPermission() {
-        if (shouldAskPermission()) {
-            Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                    Uri.parse("package:" + getPackageName()));
-            startActivityForResult(intent, OVERLAY_PERMISSION_REQ_CODE);
-            String msg = "Overlay permissions needs to be granted in order for react native apps to run in dev mode";
-            Log.w(TAG, "======================================\n\n");
-            Log.w(TAG, msg);
-            Log.w(TAG, "\n\n======================================");
-            for (int i = 0; i < 5; i++) {
-                Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
-            }
-        }
-    }
-
 
     protected @Nullable Bundle getLaunchOptions() {
         Bundle bundle = activityParams.screenParams.navigationParams.toBundle();
@@ -128,28 +64,17 @@ public class NavigationActivity extends AppCompatActivity implements DefaultHard
         return bundle;
     }
 
-
-    protected ReactNativeHost getReactNativeHost() {
-        return ((ReactApplication) getApplication()).getReactNativeHost();
-    }
-
-
     private void createLayout() {
-        layout = new RelativeLayout(this);
-        RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT);
-
         screen = new Screen(this, activityParams.screenParams, this);
-        screen.setVisibility(View.INVISIBLE);
-        layout.addView(screen, layout.getChildCount() - 1, lp);
         screen.setStyle();
         screen.setVisibility(View.VISIBLE);
-
         if (hasBackgroundColor()) {
-            layout.setBackgroundColor(AppStyle.appStyle.screenBackgroundColor.getColor());
+            screen.setBackgroundColor(AppStyle.appStyle.screenBackgroundColor.getColor());
         }
-        setContentView(layout);
+        setContentView(screen);
+        titleBar = screen.titleBar;
+        mReactRootView = screen.contentView;
     }
-
 
     private boolean hasBackgroundColor() {
         return AppStyle.appStyle.screenBackgroundColor != null &&
@@ -160,19 +85,12 @@ public class NavigationActivity extends AppCompatActivity implements DefaultHard
     protected void onResume() {
         super.onResume();
         currentActivity = this;
-        if (mReactInstanceManager != null) {
-            mReactInstanceManager.onHostResume(this, this);
-        }
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         currentActivity = null;
-
-        if (mReactInstanceManager != null) {
-            mReactInstanceManager.onHostPause(this);
-        }
     }
 
     @Override
@@ -180,20 +98,6 @@ public class NavigationActivity extends AppCompatActivity implements DefaultHard
         super.onDestroy();
         NavigationCommandsHandler.unregisterNavigationActivity(this, activityParams.screenParams.navigationParams.navigatorId);
         NavigationCommandsHandler.unregisterActivity(activityParams.screenParams.navigationParams.screenInstanceId);
-
-        if (mReactInstanceManager != null) {
-            mReactInstanceManager.onHostDestroy(this);
-        }
-        if (screen.contentView != null) {
-            screen.contentView.unmountReactApplication();
-        }
-
-    }
-
-
-    @Override
-    public void invokeDefaultOnBackPressed() {
-        super.onBackPressed();
     }
 
     @Override
@@ -215,60 +119,10 @@ public class NavigationActivity extends AppCompatActivity implements DefaultHard
     }
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == OVERLAY_PERMISSION_REQ_CODE) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                if (!Settings.canDrawOverlays(this)) {
-                    // SYSTEM_ALERT_WINDOW permission not granted
-                    Log.i(TAG, "SYSTEM_ALERT_WINDOW permission not granted");
-                }
-            }
-        }
-        mReactInstanceManager.onActivityResult( this, requestCode, resultCode, data );
-
-    }
-
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (getReactNativeHost().hasInstance()
-                && getReactNativeHost().getUseDeveloperSupport()
-                && keyCode == KeyEvent.KEYCODE_MEDIA_FAST_FORWARD) {
-            event.startTracking();
-            return true;
-        }
-
-        return super.onKeyDown(keyCode, event);
-    }
-
-    @Override
-    public boolean onKeyUp(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_MENU && mReactInstanceManager != null) {
-            mReactInstanceManager.showDevOptionsDialog();
-            return true;
-        }
-        return super.onKeyUp(keyCode, event);
-
-    }
-
-    @Override
-    public boolean onKeyLongPress(int keyCode, KeyEvent event) {
-        if (getReactNativeHost().hasInstance()
-                && getReactNativeHost().getUseDeveloperSupport()
-                && keyCode == KeyEvent.KEYCODE_MEDIA_FAST_FORWARD) {
-            getReactNativeHost().getReactInstanceManager().showDevOptionsDialog();
-            return true;
-        }
-
-        return super.onKeyLongPress(keyCode, event);
-    }
-
-
-    @Override
     public boolean onTitleBarBackButtonClick() {
         onBackPressed();
         return true;
     }
-
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private void setStatusBarColor(StyleParams.Color statusBarColor) {
@@ -293,51 +147,34 @@ public class NavigationActivity extends AppCompatActivity implements DefaultHard
         }
     }
 
-
     //TODO all these setters should be combined to something like setStyle
     public void setTopBarVisible(String screenId, boolean visible, boolean animate) {
-        screen.topBarVisibilityAnimator.setVisible(visible, animate);
+        titleBar.setVisibility(visible ? View.VISIBLE : View.GONE);
     }
 
     public void setTitleBarTitle(String screenId, String title) {
-        screen.topBar.setTitle(title);
+        titleBar.setTitle(title);
     }
 
     public void setTitleBarSubtitle(String screenId, String subtitle) {
-        screen.topBar.setSubtitle(subtitle);
+        titleBar.setSubtitle(subtitle);
     }
 
     public void setTitleBarRightButtons(String screenId, String navigatorEventId, List<TitleBarButtonParams> titleBarButtons) {
         screen.setButtonColorFromScreen(titleBarButtons);
-        screen.topBar.setTitleBarRightButtons(navigatorEventId, titleBarButtons);
+        titleBar.setRightButtons(titleBarButtons, navigatorEventId);
     }
+
     void setTitleBarButtons(String screenInstanceId, final String navigatorEventId, final List<TitleBarButtonParams> titleBarButtons) {
         this.setTitleBarRightButtons(screenInstanceId, navigatorEventId, titleBarButtons);
     }
 
     public void setTitleBarLeftButton(String screenId, String navigatorEventId,
                                       TitleBarLeftButtonParams titleBarLeftButtonParams) {
-        screen.topBar.setTitleBarLeftButton(navigatorEventId,
-                this,
-                titleBarLeftButtonParams,
-                activityParams.screenParams.overrideBackPressInJs);
+        titleBar.setLeftButton(titleBarLeftButtonParams,this, navigatorEventId);
     }
 
     public void enableRightButton(String screenId, boolean enabled) {
-        screen.topBar.enableRightButton(enabled);
+        titleBar.enableRightButton(enabled);
     }
-
-
-    @TargetApi(Build.VERSION_CODES.M)
-    public void requestPermissions(String[] permissions, int requestCode, PermissionListener listener) {
-        mPermissionListener = listener;
-        requestPermissions(permissions, requestCode);
-    }
-
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        if (mPermissionListener != null && mPermissionListener.onRequestPermissionsResult(requestCode, permissions, grantResults)) {
-            mPermissionListener = null;
-        }
-    }
-
 }

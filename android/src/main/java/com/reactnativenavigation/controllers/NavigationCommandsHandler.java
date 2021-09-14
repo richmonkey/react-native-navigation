@@ -5,6 +5,7 @@ import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 
 import com.reactnativenavigation.NavigationApplication;
 import com.reactnativenavigation.params.ActivityParams;
@@ -47,6 +48,65 @@ public class NavigationCommandsHandler {
     public static void init(Application app) {
         application = app;
         navigationApplication = (NavigationApplication)app;
+    }
+
+
+    public static Bundle createParamsBundle(String screenId, Bundle passProps) {
+        Bundle stylesParams = null;
+        return createParamsBundle(screenId, passProps, stylesParams, "");
+    }
+
+    public static Bundle createParamsBundle(String screenId, Bundle passProps, String title) {
+        Bundle stylesParams = null;
+        return createParamsBundle(screenId, passProps, stylesParams, title);
+    }
+
+    public static Bundle createParamsBundle(String screenId, Bundle passProps, boolean titleBarHidden, String title) {
+        Bundle styleParams = new Bundle();
+        styleParams.putBoolean("titleBarHidden", titleBarHidden);
+        return createParamsBundle(screenId, passProps, styleParams, title);
+    }
+
+    public static Bundle createParamsBundle(String screenId, Bundle passProps, Bundle styleParams, String title) {
+        Bundle bundle = new Bundle();
+
+        String navigatorId = NavigationActivity.uniqueId("_navigatorID");
+        String screenInstanceId = NavigationActivity.uniqueId("_screenInstanceID");
+        String navigatorEventId = screenInstanceId + "_event";
+
+        passProps.putString("navigatorID", navigatorId);
+        passProps.putString("screenInstanceID", screenInstanceId);
+        passProps.putString("navigatorEventID", navigatorEventId);
+
+
+        Bundle navigationParams = new Bundle();
+        navigationParams.putString("screenInstanceID", screenInstanceId);
+        navigationParams.putString("navigatorEventID", navigatorEventId);
+        navigationParams.putString("navigatorID", navigatorId);
+
+
+        Bundle[] buttons = NavigationCommandsHandler.getNavigatorButtons(screenId);
+        if (buttons != null && buttons.length == 2) {
+            if (buttons[0] != null) {
+                bundle.putBundle("leftButton", buttons[0]);
+            }
+            if (buttons[1] != null) {
+                bundle.putBundle("rightButtons", buttons[1]);
+            }
+        }
+
+        bundle.putBundle("passProps", passProps);
+        if (styleParams != null) {
+            bundle.putBundle("styleParams", styleParams);
+        }
+        bundle.putBundle("navigationParams", navigationParams);
+        bundle.putString("screenId", screenId);
+        bundle.putString("navigatorID", navigatorId);
+        if (!TextUtils.isEmpty(title)) {
+            bundle.putString("title", title);
+        }
+
+        return bundle;
     }
 
     public static void registerNavigationActivity(Activity activity, String navigatorID) {

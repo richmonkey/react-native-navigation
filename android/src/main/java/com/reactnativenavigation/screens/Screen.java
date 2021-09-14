@@ -2,15 +2,13 @@ package com.reactnativenavigation.screens;
 
 import androidx.appcompat.app.AppCompatActivity;
 import android.widget.RelativeLayout;
-
 import com.facebook.react.ReactRootView;
-import com.reactnativenavigation.animation.VisibilityAnimator;
 import com.reactnativenavigation.params.ScreenParams;
 import com.reactnativenavigation.params.StyleParams;
 import com.reactnativenavigation.params.TitleBarButtonParams;
 import com.reactnativenavigation.utils.ViewUtils;
 import com.reactnativenavigation.views.LeftButtonOnClickListener;
-import com.reactnativenavigation.views.TopBar;
+import com.reactnativenavigation.views.TitleBar;
 
 import java.util.List;
 
@@ -18,11 +16,10 @@ import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
 public class Screen extends RelativeLayout {
-
     public final ScreenParams screenParams;
-    public TopBar topBar;
+    public TitleBar titleBar;
+
     public final LeftButtonOnClickListener leftButtonOnClickListener;
-    public VisibilityAnimator topBarVisibilityAnimator;
     public final StyleParams styleParams;
     public ReactRootView contentView;
 
@@ -35,63 +32,28 @@ public class Screen extends RelativeLayout {
     }
 
     public void setStyle() {
-        topBar.setStyle(styleParams);
+        titleBar.setStyle(styleParams);
         if (styleParams.screenBackgroundColor.hasColor()) {
             setBackgroundColor(styleParams.screenBackgroundColor.getColor());
         }
     }
 
     private void createViews() {
-        createAndAddTopBar();
         createTitleBar();
         createContent();
     }
 
     private void createTitleBar() {
-        addTitleBarButtons();
-        topBar.setTitle(screenParams.title);
-        topBar.setSubtitle(screenParams.subtitle);
-    }
+        titleBar = new TitleBar(getContext());
+        titleBar.setId(ViewUtils.generateViewId());
+        titleBar.setBackgroundColor(styleParams.topBarColor.getColor());
 
-    private void addTitleBarButtons() {
-        setButtonColorFromScreen(screenParams.rightButtons);
-        if (screenParams.leftButton != null) {
-            screenParams.leftButton.setColorFromScreenStyle(screenParams.styleParams.titleBarButtonColor);
-        }
-        topBar.addTitleBarAndSetButtons(screenParams.rightButtons,
-                screenParams.leftButton,
-                leftButtonOnClickListener,
-                screenParams.getNavigatorEventId(),
-                screenParams.overrideBackPressInJs);
+        addView(titleBar, new LayoutParams(MATCH_PARENT, WRAP_CONTENT));
+        titleBar.setRightButtons(screenParams.rightButtons, screenParams.getNavigatorEventId());
+        titleBar.setLeftButton(screenParams.leftButton, leftButtonOnClickListener, screenParams.getNavigatorEventId());
+        titleBar.setTitle(screenParams.title);
+        titleBar.setSubtitle(screenParams.subtitle);
     }
-
-    private void createAndAddTopBar() {
-        createTopBar();
-        addTopBar();
-    }
-
-    protected void createTopBar() {
-        topBar = new TopBar(getContext());
-    }
-
-    private void addTopBar() {
-        createTopBarVisibilityAnimator();
-        addView(topBar, new LayoutParams(MATCH_PARENT, WRAP_CONTENT));
-    }
-
-    private void createTopBarVisibilityAnimator() {
-        ViewUtils.runOnPreDraw(topBar, new Runnable() {
-            @Override
-            public void run() {
-                if (topBarVisibilityAnimator == null) {
-                    topBarVisibilityAnimator = new VisibilityAnimator(topBar,
-                            VisibilityAnimator.HideDirection.Up,
-                            topBar.getHeight());
-                }
-            }
-        });
-    }
-
 
     public void setButtonColorFromScreen(List<TitleBarButtonParams> titleBarButtonParams) {
         if (titleBarButtonParams == null) {
@@ -111,7 +73,7 @@ public class Screen extends RelativeLayout {
     protected LayoutParams createLayoutParams() {
         LayoutParams params = new LayoutParams(MATCH_PARENT, MATCH_PARENT);
         if (screenParams.styleParams.drawScreenBelowTopBar) {
-            params.addRule(BELOW, topBar.getId());
+            params.addRule(BELOW, titleBar.getId());
         }
         return params;
     }

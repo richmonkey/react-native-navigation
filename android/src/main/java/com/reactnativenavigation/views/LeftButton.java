@@ -21,18 +21,15 @@ class LeftButton extends MaterialMenuDrawable implements View.OnClickListener {
     private TitleBarLeftButtonParams params;
     private final LeftButtonOnClickListener onClickListener;
     private final String navigatorEventId;
-    private final boolean overrideBackPressInJs;
 
     LeftButton(Context context,
                TitleBarLeftButtonParams params,
                LeftButtonOnClickListener onClickListener,
-               String navigatorEventId,
-               boolean overrideBackPressInJs) {
+               String navigatorEventId) {
         super(context, getColor(params), Stroke.THIN);
         this.params = params;
         this.onClickListener = onClickListener;
         this.navigatorEventId = navigatorEventId;
-        this.overrideBackPressInJs = overrideBackPressInJs;
         setInitialState();
     }
 
@@ -54,11 +51,7 @@ class LeftButton extends MaterialMenuDrawable implements View.OnClickListener {
     }
 
     private void handleBackButtonClick() {
-        if (overrideBackPressInJs) {
-            NavigationCommandsHandler.navigationApplication.getEventEmitter().sendNavigatorEvent("backPress", navigatorEventId);
-        } else {
-            onClickListener.onTitleBarBackButtonClick();
-        }
+        onClickListener.onTitleBarBackButtonClick();
     }
 
     private void setInitialState() {
