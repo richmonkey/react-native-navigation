@@ -10,7 +10,12 @@ public class NavigationReactEventEmitter {
     private static final String KEY_EVENT_ID = "id";
     private static final String KEY_EVENT_TYPE = "type";
     private static final String KEY_NAVIGATOR_EVENT_ID = "navigatorEventID";
-    private static final String EVENT_TYPE = "NavBarButtonPress";
+
+    private static final String KEY_SCREEN_STATE = "state";
+
+    private static final String BUTTON_EVENT_TYPE = "NavBarButtonPress";
+    private static final String SCREEN_STATE_EVENT_TYPE = "ScreenStateEvent";
+
     private RCTDeviceEventEmitter eventEmitter;
 
     public NavigationReactEventEmitter(ReactContext reactContext) {
@@ -19,8 +24,16 @@ public class NavigationReactEventEmitter {
 
     public void sendNavigatorEvent(String eventId, String navigatorEventId) {
         WritableMap data = Arguments.createMap();
-        data.putString(KEY_EVENT_TYPE, EVENT_TYPE);
+        data.putString(KEY_EVENT_TYPE, BUTTON_EVENT_TYPE);
         data.putString(KEY_EVENT_ID, eventId);
+        data.putString(KEY_NAVIGATOR_EVENT_ID, navigatorEventId);
+        eventEmitter.emit(navigatorEventId, data);
+    }
+
+    public void sendNavigatorScreenEvent(String screenState, String navigatorEventId) {
+        WritableMap data = Arguments.createMap();
+        data.putString(KEY_EVENT_TYPE, SCREEN_STATE_EVENT_TYPE);
+        data.putString(KEY_SCREEN_STATE, screenState);
         data.putString(KEY_NAVIGATOR_EVENT_ID, navigatorEventId);
         eventEmitter.emit(navigatorEventId, data);
     }

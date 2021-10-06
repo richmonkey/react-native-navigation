@@ -22,6 +22,9 @@ import java.util.List;
 
 
 public class NavigationActivity extends ReactNavigationActivity implements LeftButtonOnClickListener {
+    private static final String SCREEN_STATE_ACTIVE = "active";
+    private static final String SCREEN_STATE_BACKGROUND = "background";
+
     public static long _id = 0;
     static NavigationActivity currentActivity;
 
@@ -85,12 +88,14 @@ public class NavigationActivity extends ReactNavigationActivity implements LeftB
     protected void onResume() {
         super.onResume();
         currentActivity = this;
+        NavigationCommandsHandler.navigationApplication.getEventEmitter().sendNavigatorScreenEvent(SCREEN_STATE_ACTIVE, activityParams.screenParams.getNavigatorEventId());
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         currentActivity = null;
+        NavigationCommandsHandler.navigationApplication.getEventEmitter().sendNavigatorScreenEvent(SCREEN_STATE_BACKGROUND, activityParams.screenParams.getNavigatorEventId());
     }
 
     @Override
