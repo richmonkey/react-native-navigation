@@ -13,7 +13,7 @@ export interface Navigation {
 interface PushParam {
     title?:string;
     screen:string;
-    navigatorStyle:{navBarHidden};
+    navigatorStyle?:{navBarHidden};
     passProps;
 }
 export interface Navigator {
