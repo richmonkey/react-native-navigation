@@ -88,14 +88,18 @@ public class NavigationActivity extends ReactNavigationActivity implements LeftB
     protected void onResume() {
         super.onResume();
         currentActivity = this;
-        NavigationCommandsHandler.navigationApplication.getEventEmitter().sendNavigatorScreenEvent(SCREEN_STATE_ACTIVE, activityParams.screenParams.getNavigatorEventId());
+        if (NavigationCommandsHandler.navigationApplication.isReactContextInitialized()) {
+            NavigationCommandsHandler.navigationApplication.getEventEmitter().sendNavigatorScreenEvent(SCREEN_STATE_ACTIVE, activityParams.screenParams.getNavigatorEventId());
+        }
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         currentActivity = null;
-        NavigationCommandsHandler.navigationApplication.getEventEmitter().sendNavigatorScreenEvent(SCREEN_STATE_BACKGROUND, activityParams.screenParams.getNavigatorEventId());
+        if (NavigationCommandsHandler.navigationApplication.isReactContextInitialized()) {
+            NavigationCommandsHandler.navigationApplication.getEventEmitter().sendNavigatorScreenEvent(SCREEN_STATE_BACKGROUND, activityParams.screenParams.getNavigatorEventId());
+        }
     }
 
     @Override
