@@ -66,8 +66,10 @@ public class NavigationCommandsHandler {
         styleParams.putBoolean("titleBarHidden", titleBarHidden);
         return createParamsBundle(screenId, passProps, styleParams, title);
     }
-
     public static Bundle createParamsBundle(String screenId, Bundle passProps, Bundle styleParams, String title) {
+        return createParamsBundle(screenId, passProps, styleParams, title, null);
+    }
+    public static Bundle createParamsBundle(String screenId, Bundle passProps, Bundle styleParams, String title, Bundle leftButton) {
         Bundle bundle = new Bundle();
 
         String navigatorId = NavigationActivity.uniqueId("_navigatorID");
@@ -93,6 +95,9 @@ public class NavigationCommandsHandler {
             if (buttons[1] != null) {
                 bundle.putBundle("rightButtons", buttons[1]);
             }
+        }
+        if (leftButton != null) {
+            bundle.putBundle("leftButton", leftButton);
         }
 
         bundle.putBundle("passProps", passProps);
@@ -145,7 +150,7 @@ public class NavigationCommandsHandler {
         }
     }
 
-    public static void registerNavigatorButtons(String componentId,  Bundle rightButtons, Bundle leftButton) {
+    public static void registerNavigatorButtons(String componentId, Bundle rightButtons, Bundle leftButton) {
         Bundle[] a = new Bundle[2];
         a[0] = leftButton;
         a[1] = rightButtons;
