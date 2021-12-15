@@ -46,8 +46,8 @@ static volatile int64_t _id = 0;
 }
 
 
-- (instancetype)initWithComponent:(NSString *)component passProps:(NSDictionary *)passProps navigatorStyle:(NSDictionary*)navigatorStyle bridge:(RCTBridge *)bridge
-{
+- (instancetype)initWithComponent:(NSString *)component passProps:(NSDictionary *)passProps
+                   navigatorStyle:(NSDictionary*)navigatorStyle bridge:(RCTBridge *)bridge {
     self = [super init];
     if (self) {
         self.props = [NSMutableDictionary dictionaryWithDictionary:passProps];
@@ -68,8 +68,7 @@ static volatile int64_t _id = 0;
     return self;
 }
 
-- (void)dealloc
-{
+- (void)dealloc {
     self.view = nil;
     if (self.componentID.length > 0) {
         [[RCCManager sharedInstance] unregisterController:self];
@@ -78,8 +77,7 @@ static volatile int64_t _id = 0;
 
 
 
-- (void)loadView
-{
+- (void)loadView {
     RCTRootView *reactView = [[RCTRootView alloc] initWithBridge:self.bridge moduleName:self.component initialProperties:self.props];
     self.view = reactView;
 }
@@ -95,23 +93,17 @@ static volatile int64_t _id = 0;
     self.automaticallyAdjustsScrollViewInsets = NO; // default
 }
 
-
-
-
-- (void)viewWillAppear:(BOOL)animated
-{
+- (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
 }
 
-- (void)viewWillDisappear:(BOOL)animated
-{
+- (void)viewWillDisappear:(BOOL)animated {
     [super viewWillDisappear:animated];
 }
 
 
 // only styles that can't be set on willAppear should be set here
-- (void)setStyleOnInit
-{
+- (void)setStyleOnInit {
     NSNumber *tabBarHidden = self.navigatorStyle[@"tabBarHidden"];
     BOOL tabBarHiddenBool = tabBarHidden ? [tabBarHidden boolValue] : NO;
     if (tabBarHiddenBool)
@@ -146,14 +138,12 @@ static volatile int64_t _id = 0;
     }
 }
 
-- (BOOL)hidesBottomBarWhenPushed
-{
+- (BOOL)hidesBottomBarWhenPushed {
     if (!self._hidesBottomBarWhenPushed) return NO;
     return (self.navigationController.topViewController == self);
 }
 
-- (BOOL)prefersStatusBarHidden
-{
+- (BOOL)prefersStatusBarHidden {
     if (self._statusBarHidden)
     {
         return YES;
@@ -173,8 +163,7 @@ static volatile int64_t _id = 0;
 }
 
 
-- (UIStatusBarStyle)preferredStatusBarStyle
-{
+- (UIStatusBarStyle)preferredStatusBarStyle {
     if (self._statusBarTextColorSchemeLight)
     {
         return UIStatusBarStyleLightContent;
@@ -201,8 +190,7 @@ static volatile int64_t _id = 0;
 
 #pragma mark - NewRelic
 
-- (NSString*) customNewRelicInteractionName
-{
+- (NSString*)customNewRelicInteractionName {
     NSString *interactionName = nil;
     
     if (self.view != nil && [self.view isKindOfClass:[RCTRootView class]])

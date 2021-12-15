@@ -90,8 +90,21 @@ NSString const *CALLBACK_ASSOCIATED_ID = @"RCCNavigationController.CALLBACK_ASSO
     }
 }
 
-- (void)performAction:(NSString*)performAction actionParams:(NSDictionary*)actionParams bridge:(RCTBridge *)bridge
-{
+- (void)push:(NSString*)component
+       props:(NSDictionary*)props
+       title:(NSString*)title
+tabBarHidden:(BOOL)tabbarHidden
+      bridge:(RCTBridge*)bridge {
+    NSDictionary *params = @{
+        @"passProps":props,
+        @"title":title,
+        @"component":component,
+        @"style":@{@"tabBarHidden":@(tabbarHidden)}
+    };
+    [self performAction:@"push" actionParams:params bridge:bridge];
+}
+
+- (void)performAction:(NSString*)performAction actionParams:(NSDictionary*)actionParams bridge:(RCTBridge *)bridge {
     BOOL animated = actionParams[@"animated"] ? [actionParams[@"animated"] boolValue] : YES;
     
     // push
@@ -133,7 +146,7 @@ NSString const *CALLBACK_ASSOCIATED_ID = @"RCCNavigationController.CALLBACK_ASSO
         } else {
             viewController = [[RCCViewController alloc] initWithComponent:component passProps:passProps navigatorStyle:navigatorStyle bridge:bridge];
         }
-        
+
         [self processTitleView:viewController
                          props:actionParams
                          style:navigatorStyle];
@@ -171,6 +184,7 @@ NSString const *CALLBACK_ASSOCIATED_ID = @"RCCNavigationController.CALLBACK_ASSO
         {
             [self setButtons:rightButtons viewController:viewController side:@"right" animated:NO];
         }
+
         
         [self pushViewController:viewController animated:animated];
         return;
