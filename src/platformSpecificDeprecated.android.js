@@ -158,50 +158,12 @@ function convertStyleParams(originalStyleObject) {
 
   let ret = {
     statusBarColor: originalStyleObject.statusBarColor,
-
-
-    drawScreenAboveBottomTabs: !originalStyleObject.drawUnderTabBar,
-    drawBelowTopBar: !originalStyleObject.drawUnderNavBar,
-
-    topBarColor: originalStyleObject.navBarBackgroundColor,
-    topBarTransparent: originalStyleObject.navBarTransparent,
+    drawBelowTopBar: originalStyleObject.drawBelowTopBar,
+    screenBackgroundColor: originalStyleObject.screenBackgroundColor,
     topBarTranslucent: originalStyleObject.navBarTranslucent,
-    topBarElevationShadowEnabled: originalStyleObject.topBarElevationShadowEnabled,
 
     titleBarHidden: originalStyleObject.navBarHidden,
-    titleBarHideOnScroll: originalStyleObject.navBarHideOnScroll,
-    titleBarTitleColor: originalStyleObject.navBarTextColor,
-    titleBarSubtitleColor: originalStyleObject.navBarTextSubtitleColor,
-    titleBarButtonColor: originalStyleObject.navBarButtonColor,
 
-    titleBarDisabledButtonColor: (originalStyleObject.titleBarDisabledButtonColor),
-
-    collapsingToolBarImage: originalStyleObject.collapsingToolBarImage,
-    collapsingToolBarCollapsedColor: (originalStyleObject.collapsingToolBarCollapsedColor),
-
-    backButtonHidden: originalStyleObject.backButtonHidden,
-    topTabsHidden: originalStyleObject.topTabsHidden,
-    contextualMenuStatusBarColor: (originalStyleObject.contextualMenuStatusBarColor),
-    contextualMenuBackgroundColor: (originalStyleObject.contextualMenuBackgroundColor),
-    contextualMenuButtonsColor: (originalStyleObject.contextualMenuButtonsColor),
-
-    topTabTextColor: (originalStyleObject.topTabTextColor),
-    selectedTopTabTextColor: (originalStyleObject.selectedTopTabTextColor),
-    selectedTopTabIndicatorHeight: originalStyleObject.selectedTopTabIndicatorHeight,
-    selectedTopTabIndicatorColor: (originalStyleObject.selectedTopTabIndicatorColor),
-
-    screenBackgroundColor: (originalStyleObject.screenBackgroundColor),
-
-    bottomTabsColor: (originalStyleObject.tabBarBackgroundColor),
-    bottomTabsButtonColor: (originalStyleObject.tabBarButtonColor),
-    bottomTabsSelectedButtonColor: (originalStyleObject.tabBarSelectedButtonColor),
-    bottomTabsHidden: originalStyleObject.tabBarHidden,
-    bottomTabsHiddenOnScroll: originalStyleObject.bottomTabsHiddenOnScroll,
-    forceTitlesDisplay: originalStyleObject.forceTitlesDisplay,
-    bottomTabBadgeTextColor: (originalStyleObject.bottomTabBadgeTextColor),
-    bottomTabBadgeBackgroundColor: (originalStyleObject.bottomTabBadgeBackgroundColor),
-
-    navigationBarColor: (originalStyleObject.navigationBarColor)
   }
   return ret;
 }

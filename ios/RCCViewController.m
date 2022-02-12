@@ -5,9 +5,6 @@
 #import "RCCManager.h"
 #import <React/RCTConvert.h>
 
-const NSInteger BLUR_STATUS_TAG = 78264801;
-const NSInteger BLUR_NAVBAR_TAG = 78264802;
-const NSInteger TRANSPARENT_NAVBAR_TAG = 78264803;
 
 static volatile int64_t _id = 0;
 
@@ -75,15 +72,12 @@ static volatile int64_t _id = 0;
     }
 }
 
-
-
 - (void)loadView {
     RCTRootView *reactView = [[RCTRootView alloc] initWithBridge:self.bridge moduleName:self.component initialProperties:self.props];
     self.view = reactView;
 }
 
-- (void)viewDidLoad
-{
+- (void)viewDidLoad {
     [super viewDidLoad];
     
     if (@available(iOS 13.0,*)) {
@@ -106,34 +100,25 @@ static volatile int64_t _id = 0;
 - (void)setStyleOnInit {
     NSNumber *tabBarHidden = self.navigatorStyle[@"tabBarHidden"];
     BOOL tabBarHiddenBool = tabBarHidden ? [tabBarHidden boolValue] : NO;
-    if (tabBarHiddenBool)
-    {
+    if (tabBarHiddenBool) {
         self._hidesBottomBarWhenPushed = YES;
-    }
-    else
-    {
+    } else {
         self._hidesBottomBarWhenPushed = NO;
     }
     
     NSNumber *statusBarHideWithNavBar = self.navigatorStyle[@"statusBarHideWithNavBar"];
     BOOL statusBarHideWithNavBarBool = statusBarHideWithNavBar ? [statusBarHideWithNavBar boolValue] : NO;
-    if (statusBarHideWithNavBarBool)
-    {
+    if (statusBarHideWithNavBarBool) {
         self._statusBarHideWithNavBar = YES;
-    }
-    else
-    {
+    } else {
         self._statusBarHideWithNavBar = NO;
     }
     
     NSNumber *statusBarHidden = self.navigatorStyle[@"statusBarHidden"];
     BOOL statusBarHiddenBool = statusBarHidden ? [statusBarHidden boolValue] : NO;
-    if (statusBarHiddenBool)
-    {
+    if (statusBarHiddenBool) {
         self._statusBarHidden = YES;
-    }
-    else
-    {
+    } else {
         self._statusBarHidden = NO;
     }
 }
@@ -144,16 +129,12 @@ static volatile int64_t _id = 0;
 }
 
 - (BOOL)prefersStatusBarHidden {
-    if (self._statusBarHidden)
-    {
+    if (self._statusBarHidden) {
         return YES;
     }
-    if (self._statusBarHideWithNavBar)
-    {
+    if (self._statusBarHideWithNavBar) {
         return self.navigationController.isNavigationBarHidden;
-    }
-    else
-    {
+    } else {
         return NO;
     }
 }
@@ -164,12 +145,9 @@ static volatile int64_t _id = 0;
 
 
 - (UIStatusBarStyle)preferredStatusBarStyle {
-    if (self._statusBarTextColorSchemeLight)
-    {
+    if (self._statusBarTextColorSchemeLight) {
         return UIStatusBarStyleLightContent;
-    }
-    else
-    {
+    } else {
         return UIStatusBarStyleDefault;
     }
 }
@@ -189,21 +167,17 @@ static volatile int64_t _id = 0;
 
 
 #pragma mark - NewRelic
-
 - (NSString*)customNewRelicInteractionName {
     NSString *interactionName = nil;
     
-    if (self.view != nil && [self.view isKindOfClass:[RCTRootView class]])
-    {
+    if (self.view != nil && [self.view isKindOfClass:[RCTRootView class]]) {
         NSString *moduleName = ((RCTRootView*)self.view).moduleName;
-        if(moduleName != nil)
-        {
+        if(moduleName != nil) {
             interactionName = [NSString stringWithFormat:@"RCCViewController: %@", moduleName];
         }
     }
     
-    if (interactionName == nil)
-    {
+    if (interactionName == nil) {
         interactionName = [NSString stringWithFormat:@"RCCViewController with title: %@", self.title];
     }
     

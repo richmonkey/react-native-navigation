@@ -33,24 +33,34 @@ public class StyleParams {
         }
     }
 
-    public Color statusBarColor;
-    public Color topBarColor;
+    /*
     public boolean topBarHidden;
     public boolean topBarElevationShadowEnabled;
     public boolean topTabsHidden;
+    public boolean titleBarHideOnScroll;
+    public boolean topBarTransparent;
+    public boolean backButtonHidden;*/
+
+    public Color statusBarColor;
     public boolean drawScreenBelowTopBar;
     public boolean titleBarHidden;
-    public boolean titleBarHideOnScroll;
-
-    public boolean topBarTransparent;
+    public Color topBarColor;
     public boolean topBarTranslucent;
     public Color titleBarTitleColor;
     public Color titleBarSubtitleColor;
     public Color titleBarButtonColor;
     public Color titleBarDisabledButtonColor;
-
-
-    public boolean backButtonHidden;
     public Color screenBackgroundColor;
     public Color navigationBarColor;
+
+    public StyleParams() {
+        statusBarColor = new Color();
+        topBarColor = new Color();
+        titleBarTitleColor = new Color();
+        titleBarSubtitleColor = new Color();
+        titleBarButtonColor = new Color();
+        titleBarDisabledButtonColor = new Color();
+        screenBackgroundColor = new Color();
+        navigationBarColor = new Color();
+    }
 }

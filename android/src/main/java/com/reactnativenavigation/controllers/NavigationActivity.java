@@ -42,9 +42,7 @@ public class NavigationActivity extends ReactNavigationActivity implements LeftB
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        //set default app style
-        AppStyle.setAppStyle(new StyleParamsParser(null).parse());
+        
         activityParams = NavigationCommandsHandler.parseActivityParams(getIntent());
         NavigationCommandsHandler.registerNavigationActivity(this, activityParams.screenParams.navigationParams.navigatorId);
         NavigationCommandsHandler.registerActivity(this, activityParams.screenParams.navigationParams.screenInstanceId);
