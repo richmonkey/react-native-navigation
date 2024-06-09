@@ -152,6 +152,7 @@ public class ReactNavigationActivity extends AppCompatActivity
             }
         }
         mReactInstanceManager.onActivityResult( this, requestCode, resultCode, data);
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     @Override
@@ -197,5 +198,6 @@ public class ReactNavigationActivity extends AppCompatActivity
         if (mPermissionListener != null && mPermissionListener.onRequestPermissionsResult(requestCode, permissions, grantResults)) {
             mPermissionListener = null;
         }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 }
